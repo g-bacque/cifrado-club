@@ -15,33 +15,45 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
 
   const barRefs = useRef<HTMLDivElement[]>([]);
 
-  const addBar = () => {
+  const createNextBar = () => {
     if (!section) return;
-    const newBar = {
-      chords: [{ chord: "", duration: 1 }],
-    };
-    section.bars.push(newBar);
-    setProject({ ...project });
+
+    const newBar = { chords: [{ chord: "", duration: 1 }] };
+    const newBars = [...section.bars, newBar];
+
+    const newSection = { ...section, bars: newBars };
+    const newSections = project.sections.map((s) =>
+      s.id === sectionId ? newSection : s
+    );
+
+    setProject({ ...project, sections: newSections });
+
+    setTimeout(() => {
+      const lastBarIndex = newBars.length - 1;
+      const lastBarDiv = barRefs.current[lastBarIndex];
+      if (!lastBarDiv) return;
+
+      const input = lastBarDiv.querySelector<HTMLInputElement>("input");
+      input?.focus();
+    }, 0);
   };
 
   return (
     <div className="mb-2">
-      <div className="flex flex-col">
-        {section.bars.map((bar, barIndex) => (
-          <BarCell
-            key={barIndex}
-            barIndex={barIndex}
-            chordData={bar.chords.map((c) => c.chord)}
-            barRefs={barRefs}
-          />
-        ))}
-      </div>
-      <button
-        onClick={addBar}
-        className="mt-1 px-2 py-1 border rounded text-sm bg-gray-200 hover:bg-gray-300"
-      >
-        + Add Bar
-      </button>
+<div className="bar-row flex flex-row gap-2">
+  {section.bars.map((bar, barIndex) => (
+<BarCell
+  key={barIndex}
+  barIndex={barIndex}
+  chordData={bar.chords.map(c => c.chord)}
+  barRefs={barRefs}
+  createNextBar={createNextBar} // <-- aquí antes tenías addBar, ahora es correcto
+/>
+
+  ))}
+</div>
+
+
     </div>
   );
 };

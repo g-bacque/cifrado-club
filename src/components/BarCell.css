@@ -1,7 +1,10 @@
+.bar-row {
+  display: flex;
+  flex-direction: row; /* horizontal */
+  gap: 8px; /* espacio entre BarCells */
+  flex-wrap: wrap; /* si se rompe la línea al alcanzar el ancho */
+}
 .bar-cell {
-  display: grid;
-  grid-template-columns: repeat(4, 60px); /* 4 chordBlocks por fila */
-  gap: 4px; /* separación entre chordBlocks */
-  border-right: 1px solid #cbd5e1; /* gris como en tailwind border-gray-400 */
+  border-right: 1px solid #cbd5e1;
   min-width: 60px;
 }

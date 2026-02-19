@@ -1,15 +1,16 @@
-import React, { useRef, forwardRef } from "react";
+import React, { useRef, forwardRef, useEffect } from "react";
 import ChordBlock from "./ChordBlock";
 import "./BarCell.css";
 
-interface BarCellProps {
+export interface BarCellProps {
   barIndex: number;
   chordData: string[];
   barRefs: React.MutableRefObject<HTMLDivElement[]>;
+  createNextBar: () => void; // se llamará al presionar Enter en el último acorde
 }
 
 const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
-  ({ barIndex, chordData, barRefs }, ref) => {
+  ({ barIndex, chordData, barRefs, createNextBar }, ref) => {
     const chordRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const focusChord = (idx: number) => {
@@ -18,13 +19,12 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
       }
     };
 
-    const focusChordInOtherBar = (targetBarIndex: number, chordIndex: number) => {
-      const barDiv = barRefs.current[targetBarIndex];
-      if (!barDiv) return;
-
-      const inputs = barDiv.querySelectorAll<HTMLInputElement>("input");
-      if (inputs[chordIndex]) inputs[chordIndex].focus();
-    };
+    // Enfoca automáticamente el primer acorde de un nuevo BarCell
+    useEffect(() => {
+      if (chordRefs.current.length > 0) {
+        chordRefs.current[0]?.focus();
+      }
+    }, []);
 
     return (
       <div
@@ -41,12 +41,12 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
             chord={chord}
             barIndex={barIndex}
             chordIndex={idx}
-            autoFocus={idx === chordData.length - 1}
+            autoFocus={idx === 0} // enfocamos el primer acorde del nuevo BarCell
             inputRef={(el) => (chordRefs.current[idx] = el)}
-            focusNext={() => focusChord(idx + 1)}
-            focusPrev={() => focusChord(idx - 1)}
-            focusUp={() => focusChordInOtherBar(barIndex - 1, idx)}
-            focusDown={() => focusChordInOtherBar(barIndex + 1, idx)}
+            onEnter={() => {
+              // Solo el último acorde del compás dispara la creación
+              if (idx === chordData.length - 1) createNextBar();
+            }}
           />
         ))}
       </div>

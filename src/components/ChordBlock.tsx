@@ -8,10 +8,7 @@ interface Props {
   chordIndex: number;
   autoFocus?: boolean;
   inputRef?: (el: HTMLInputElement | null) => void;
-  focusNext?: () => void;
-  focusPrev?: () => void;
-  focusUp?: () => void;     // nuevo
-  focusDown?: () => void;   // nuevo
+  onEnter?: () => void; // callback al presionar Enter
 }
 
 const ChordBlock: React.FC<Props> = ({
@@ -20,10 +17,7 @@ const ChordBlock: React.FC<Props> = ({
   chordIndex,
   autoFocus,
   inputRef,
-  focusNext,
-  focusPrev,
-  focusUp,   // <-- aquí
-  focusDown, // <-- aquí
+  onEnter,
 }) => {
   const [value, setValue] = useState(chord);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -41,6 +35,7 @@ const ChordBlock: React.FC<Props> = ({
     if (autoFocus) internalRef.current?.focus();
   }, [autoFocus]);
 
+  // Pasamos la referencia hacia arriba
   useEffect(() => {
     if (inputRef) inputRef(internalRef.current);
   }, [inputRef]);
@@ -71,63 +66,14 @@ const ChordBlock: React.FC<Props> = ({
     setProject({ ...project });
   };
 
-  const addNewChordBlock = () => {
-    const section = project.sections.find((s) => s.id === currentSectionId);
-    if (!section) return;
-
-    const bar = section.bars[barIndex];
-    bar.chords.push({ chord: "", duration: 1 });
-    setProject({ ...project });
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      updateChord(value);
+      setShowDropdown(false); // cerramos dropdown antes de crear el nuevo BarCell
+      onEnter?.(); // avisamos a BarCell que cree el nuevo compás
+    }
   };
-
-const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    updateChord(value);
-    setShowDropdown(false);
-
-    const section = project.sections.find((s) => s.id === currentSectionId);
-    if (!section) return;
-    const bar = section.bars[barIndex];
-
-    // Solo agregamos un nuevo ChordBlock si estamos en el último
-    if (chordIndex === bar.chords.length - 1) {
-      addNewChordBlock();
-      focusNext?.(); // enfoca el nuevo
-    }
-    return;
-  }
-
-  // Navegación dentro del dropdown
-  if (showDropdown) {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((prev) => (prev + 1 < suggestions.length ? prev + 1 : prev));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((prev) => (prev > 0 ? prev - 1 : 0));
-    } else if (e.key === "Escape") {
-      setShowDropdown(false);
-    }
-    return;
-  }
-
-  // Navegación entre ChordBlocks cuando no hay dropdown
-  if (e.key === "ArrowRight") {
-    e.preventDefault();
-    focusNext?.();
-  } else if (e.key === "ArrowLeft") {
-    e.preventDefault();
-    focusPrev?.();
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    focusUp?.();
-  } else if (e.key === "ArrowDown") {
-    e.preventDefault();
-    focusDown?.();
-  }
-};
-
 
   const handleBlur = () => {
     updateChord(value);
