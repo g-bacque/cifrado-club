@@ -1,0 +1,7 @@
+.bar-cell {
+  display: grid;
+  grid-template-columns: repeat(4, 60px); /* 4 chordBlocks por fila */
+  gap: 4px; /* separación entre chordBlocks */
+  border-right: 1px solid #cbd5e1; /* gris como en tailwind border-gray-400 */
+  min-width: 60px;
+}
