@@ -12,6 +12,8 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
   // ✅ NUEVO: usar actions del store
   const addEmptyBarAtEnd = useEditorStore((s) => s.addEmptyBarAtEnd);
 
+  const beatsPerBar = useEditorStore((s) => s.beatsPerBar);
+
   const section = project.sections.find((s) => s.id === sectionId);
   if (!section) return null;
 
@@ -55,6 +57,7 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
                 barIndex={barIndex}
                 barRefs={barRefs}
                 createNextBar={createNextBar}
+                maxSlots={beatsPerBar}
               />
             );
           })}

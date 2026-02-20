@@ -12,7 +12,8 @@ const EditorPage: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      <TopBar title={project.title} tempo={project.tempo} />
+      <TopBar tempo={project.tempo} />
+      
       <div className="flex flex-1 overflow-hidden">
         <SectionsSidebar sections={project.sections} currentSectionId={currentSectionId} />
         <ChordGrid />
