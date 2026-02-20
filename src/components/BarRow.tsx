@@ -15,6 +15,13 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
 
   const barRefs = useRef<HTMLDivElement[]>([]);
 
+  const BARS_PER_ROW = 4;
+
+const groupedBars = [];
+for (let i = 0; i < section.bars.length; i += BARS_PER_ROW) {
+  groupedBars.push(section.bars.slice(i, i + BARS_PER_ROW));
+}
+
   const createNextBar = () => {
     if (!section) return;
 
@@ -38,24 +45,27 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
     }, 0);
   };
 
-  return (
-    <div className="mb-2">
-<div className="bar-row flex flex-row gap-2">
-  {section.bars.map((bar, barIndex) => (
-<BarCell
-  key={barIndex}
-  barIndex={barIndex}
-  chordData={bar.chords.map(c => c.chord)}
-  barRefs={barRefs}
-  createNextBar={createNextBar} // <-- aquí antes tenías addBar, ahora es correcto
-/>
+return (
+  <div className="mb-2">
+    {groupedBars.map((rowBars, rowIndex) => (
+      <div key={rowIndex} className="bar-row flex flex-row gap-2 mb-2">
+        {rowBars.map((bar, localIndex) => {
+          const barIndex = rowIndex * BARS_PER_ROW + localIndex;
 
-  ))}
-</div>
-
-
-    </div>
-  );
+          return (
+            <BarCell
+              key={barIndex}
+              barIndex={barIndex}
+              chordData={bar.chords.map(c => c.chord)}
+              barRefs={barRefs}
+              createNextBar={createNextBar}
+            />
+          );
+        })}
+      </div>
+    ))}
+  </div>
+);
 };
 
 export default BarRow;
