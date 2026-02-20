@@ -17,6 +17,34 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
 
   const BARS_PER_ROW = 4;
 
+const addChordToBar = (barIndex: number) => {
+  const section = project.sections.find(s => s.id === sectionId);
+  if (!section) return;
+
+  const newBars = [...section.bars];
+
+  newBars[barIndex] = {
+    ...newBars[barIndex],
+    chords: [
+      ...newBars[barIndex].chords,
+      { chord: "", duration: 1 }
+    ]
+  };
+
+  const newSections = project.sections.map(s =>
+    s.id === sectionId ? { ...section, bars: newBars } : s
+  );
+
+  setProject({ ...project, sections: newSections });
+
+  // autofocus nuevo acorde
+  setTimeout(() => {
+    const barDiv = barRefs.current[barIndex];
+    const inputs = barDiv?.querySelectorAll<HTMLInputElement>("input");
+    inputs?.[inputs.length - 1]?.focus();
+  }, 0);
+};
+
 const groupedBars = [];
 for (let i = 0; i < section.bars.length; i += BARS_PER_ROW) {
   groupedBars.push(section.bars.slice(i, i + BARS_PER_ROW));
@@ -48,18 +76,19 @@ for (let i = 0; i < section.bars.length; i += BARS_PER_ROW) {
 return (
   <div className="mb-2">
     {groupedBars.map((rowBars, rowIndex) => (
-      <div key={rowIndex} className="bar-row flex flex-row gap-2 mb-2">
+      <div key={rowIndex} className="bar-row flex flex-row gap-2 mb-2 overflow-x-auto">
         {rowBars.map((bar, localIndex) => {
           const barIndex = rowIndex * BARS_PER_ROW + localIndex;
 
           return (
-            <BarCell
-              key={barIndex}
-              barIndex={barIndex}
-              chordData={bar.chords.map(c => c.chord)}
-              barRefs={barRefs}
-              createNextBar={createNextBar}
-            />
+<BarCell
+  key={barIndex}
+  barIndex={barIndex}
+  barData={bar.chords} // <--- pasa el array completo con chord y duration
+  barRefs={barRefs}
+  createNextBar={createNextBar}
+  addChord={addChordToBar}
+/>
           );
         })}
       </div>

@@ -5,6 +5,17 @@
   flex-wrap: wrap; /* si se rompe la línea al alcanzar el ancho */
 }
 .bar-cell {
-  border-right: 1px solid #cbd5e1;
-  min-width: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+
+  width: 300px;        /* ⭐ ancho fijo del compás */
+  min-width: 300px;
+  max-width: 300px;
+
+  border-right: 2px solid black;
+  padding: 4px;
+  gap: 4px;
+
+  box-sizing: border-box;
 }

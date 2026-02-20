@@ -1,0 +1,19 @@
+.chord-block {
+  flex: 1 1 0;       /* mantener crecimiento proporcional */
+  min-width: 0;      /* 🔑 permite que el contenido se reduzca */
+  display: flex;
+  flex-direction: column; /* columna para poner input abajo */
+}
+
+.chord-block .chord-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.chord-block .duration-input {
+  margin-top: 0.25rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
