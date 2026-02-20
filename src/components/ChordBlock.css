@@ -4,8 +4,61 @@
   min-width: 0;
 }
 
+/* Base del bloque */
+.chord-block {
+  padding: 6px 6px 4px;
+}
+
+/* INPUT del acorde: parece texto */
 .chord-input {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  outline: none;
+
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  /* Tipografía "fake Real Book" */
+  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+
+  padding: 2px 0;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+/* Fuera de foco: invisible */
+.chord-input:not(:focus) {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* En foco: línea gris suave */
+.chord-input:focus {
+  border-color: #9ca3af;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+/* Placeholder tenue */
+.chord-input::placeholder {
+  color: rgba(0, 0, 0, 0.18);
+}
+
+/* Duración: pequeña y discreta, como anotación */
+.duration-input {
+  margin-top: 4px;
+  width: 100%;
+  text-align: center;
+
+  font-size: 12px;
+  line-height: 1;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 2px 0;
+  background: rgba(0, 0, 0, 0.02);
 }
