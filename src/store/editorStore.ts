@@ -1,8 +1,9 @@
 import { create } from "zustand";
 
+// Ahora cada acorde ocupa un número de slots
 export interface ChordEvent {
-  chord: string;   // por ahora solo texto
-  duration: number;
+  chord: string;   // texto del acorde
+  slots: number;   // cuántos slots ocupa este acorde en el compás
 }
 
 export interface Bar {
@@ -26,8 +27,13 @@ export interface Project {
 interface EditorState {
   project: Project;
   currentSectionId: string;
+
+  showDurationControls: boolean; // 👈 nuevo
+
   setProject: (project: Project) => void;
   setCurrentSectionId: (id: string) => void;
+
+  toggleDurationControls: () => void; // 👈 nuevo
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -41,12 +47,23 @@ export const useEditorStore = create<EditorState>((set) => ({
         id: "sec1",
         name: "A",
         bars: [
-          { chords: [{ chord: "", duration: 1 }] }, // primer compás vacío
+          { chords: [{ chord: "", slots: 1 }] },
         ],
       },
     ],
   },
+
   currentSectionId: "sec1",
+
+  // 👇 nuevo estado
+  showDurationControls: true,
+
   setProject: (project) => set({ project }),
   setCurrentSectionId: (id) => set({ currentSectionId: id }),
+
+  // 👇 toggle
+  toggleDurationControls: () =>
+    set((state) => ({
+      showDurationControls: !state.showDurationControls,
+    })),
 }));
