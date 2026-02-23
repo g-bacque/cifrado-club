@@ -5,14 +5,18 @@ import "./ChordGrid.css";
 
 const ChordGrid: React.FC = () => {
   const project = useEditorStore((state) => state.project);
+  const currentSectionId = useEditorStore((state) => state.currentSectionId);
 
   if (!project) return null;
+
+  const currentSection = project.sections.find((s) => s.id === currentSectionId);
+  if (!currentSection) return null;
 
   return (
     <div className="chord-grid">
       {project.sections.map((section) => (
         <div key={section.id} className="section-block">
-          <div className="section-header">{section.name}</div>
+
           <BarRow sectionId={section.id} />
         </div>
         

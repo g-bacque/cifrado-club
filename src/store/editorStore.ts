@@ -78,6 +78,8 @@ interface EditorState {
   setProjectTitle: (title: string) => void;
   moveBar: (sectionId: string, fromIndex: number, toIndex: number) => void;
   toggleDurationControls: () => void;
+  addSection: (name?: string) => void;
+  renameSection: (sectionId: string, name: string) => void;
 
   updateChord: (
     sectionId: string,
@@ -119,6 +121,42 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const project = get().project;
     set({ project: { ...project, title } });
   },
+
+  addSection: (name) => {
+  const project = get().project;
+  const beats = get().beatsPerBar;
+
+  const sections = project.sections;
+
+  // Genera un nombre por defecto tipo A, B, C...
+  const defaultName = (() => {
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const idx = sections.length;
+    return alphabet[idx] ?? `Sec ${idx + 1}`;
+  })();
+
+  const newSection: Section = {
+    id: `sec_${Date.now()}`,
+    name: (name && name.trim()) ? name.trim() : defaultName,
+    bars: [{ chords: [{ chord: "", slots: beats }] }],
+  };
+
+  set({
+    project: { ...project, sections: [...sections, newSection] },
+    currentSectionId: newSection.id, // opcional pero muy conveniente
+  });
+},
+
+renameSection: (sectionId, name) => {
+  const project = get().project;
+  const cleaned = name.trim();
+
+  const sections = project.sections.map((sec) =>
+    sec.id === sectionId ? { ...sec, name: cleaned || sec.name } : sec
+  );
+
+  set({ project: { ...project, sections } });
+},
 
   toggleDurationControls: () =>
     set((state) => ({
@@ -253,3 +291,4 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({ project: { ...project, sections } });
   },
 }));
+

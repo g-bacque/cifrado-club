@@ -4,16 +4,28 @@
   background: #f4f5f7;
   padding: 28px 18px;
   box-sizing: border-box;
+  height: auto;
 }
 
 /* Contenedor centrado */
 .editor-shell {
-  max-width: 1100px;
+  max-width: 1100px;   /* o lo que uses */
   margin: 0 auto;
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+
+  min-height: 100vh;   /* ✅ al menos pantalla completa */
+  height: auto;        /* ✅ crece con contenido */
+  overflow: visible;   /* ✅ no recorta */
 }
 
 /* La “hoja” */
 .editor-main {
+
+  padding: 18px;
+  overflow: visible;   /* ✅ no recorta */
+  height: auto;        /* ✅ */
   display: flex;
   gap: 18px;
   align-items: flex-start;
@@ -23,7 +35,6 @@
   padding: 26px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  max-height: calc(100vh - 140px); /* ajusta si tu TopBar es más alta */
 
 }
 
@@ -33,5 +44,5 @@
 }
 
 .editor-main .chord-grid {
-  overflow: auto;
+  overflow: visible;
 }
