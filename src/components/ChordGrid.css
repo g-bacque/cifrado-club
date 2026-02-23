@@ -1,0 +1,29 @@
+/* Contenedor del grid */
+.chord-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Cada sección musical */
+.section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Cabecera de sección (A, B, C...) */
+.section-header {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  padding-left: 6px;
+
+  color: #111;
+
+  /* línea sutil debajo tipo sistema */
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+  padding-bottom: 4px;
+}

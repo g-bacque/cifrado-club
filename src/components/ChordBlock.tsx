@@ -16,6 +16,7 @@ interface Props {
   onEnter?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onSlotsChange?: (slots: number) => void;
   onDelete?: () => void;
+  onSplit?: () => void;
 
   /** Navegación rápida entre acordes */
   onMove?: (direction: "prev" | "next") => void;
@@ -31,6 +32,7 @@ const ChordBlock: React.FC<Props> = ({
   onEnter,
   onSlotsChange,
   onDelete,
+  onSplit,
   onMove,
 }) => {
   const internalRef = useRef<HTMLInputElement>(null);
@@ -144,6 +146,23 @@ const ChordBlock: React.FC<Props> = ({
           title="Delete chord"
         >
           ×
+        </button>
+      )}
+      
+      {/*SPLIT BUTTON*/}
+      {onSplit && (
+        <button
+          type="button"
+          className="split-btn"
+          onMouseDown={(e) => e.preventDefault()} 
+          onClick={(e) => {
+            e.stopPropagation();
+            onSplit();
+          }}
+          aria-label="Añadir acorde"
+          title="Añadir acorde"
+        >
+          +
         </button>
       )}
     </div>

@@ -1,0 +1,66 @@
+.bar-row {
+  --bars-per-row: 4;
+  --gap: 10px;
+
+  --btn-w: 32px;
+  --btn-gap: 10px;
+  --btn-lane: calc(var(--btn-w) + var(--btn-gap)); /* carril reservado */
+
+  position: relative;
+  margin-bottom: 14px;
+
+  /* ✅ reservamos espacio real para el botón, así no se superpone */
+  padding-right: var(--btn-lane);
+  box-sizing: border-box;
+}
+
+/* ✅ SOLO los compases, y centrados dentro del ancho disponible (sin el carril) */
+.bar-system {
+  width: calc(100% - var(--btn-lane));
+  margin: 0 auto;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: var(--gap);
+
+  justify-content: flex-start; /* ✅ ancla al inicio */
+  align-items: stretch;
+}
+
+/* ✅ Botón en el carril derecho */
+.add-bar-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+
+  width: var(--btn-w);
+  height: 32px;
+
+  border-radius: 8px;
+  border: 2px dashed rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.55);
+  color: rgba(0, 0, 0, 0.55);
+
+  font-size: 18px;
+  font-weight: 800;
+
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  user-select: none;
+}
+
+.add-bar-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.42);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.bar-cell.drop-target {
+  background: rgba(0, 0, 0, 0.04);
+}

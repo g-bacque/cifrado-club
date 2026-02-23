@@ -26,27 +26,20 @@ export interface Project {
 
 /**
  * Ajusta un compás para que la suma de slots sea exactamente "beats".
- * - Mantiene mínimo 1 slot por acorde
- * - Si hay exceso, recorta desde el final sin bajar de 1
- * - Si falta, añade al último acorde
- * - Si hay demasiados acordes para el número de beats (ej: 4 acordes en 3/4),
- *   fusiona acordes desde el final
  */
 function resizeBarToBeats(bar: Bar, beats: number): Bar {
   const chords = bar.chords.map((c) => ({ ...c, slots: Math.max(1, c.slots) }));
 
-  // Si hay más acordes que beats, fusionamos desde el final
   while (chords.length > beats) {
     const last = chords.pop()!;
     chords[chords.length - 1].slots += last.slots;
   }
 
-  // Ajuste por exceso o defecto
   let total = chords.reduce((s, c) => s + c.slots, 0);
 
-  // Si sobra, recortar desde el final sin bajar de 1
   if (total > beats) {
     let extra = total - beats;
+
     for (let i = chords.length - 1; i >= 0 && extra > 0; i--) {
       const reducible = chords[i].slots - 1;
       const take = Math.min(reducible, extra);
@@ -54,17 +47,15 @@ function resizeBarToBeats(bar: Bar, beats: number): Bar {
       extra -= take;
     }
 
-    // Caso extremo: aún sobra y ya no se puede recortar (todos en 1)
-    // Fusionamos hasta que quepa.
     while (extra > 0 && chords.length > 1) {
       const last = chords.pop()!;
       chords[chords.length - 1].slots += last.slots;
+
       total = chords.reduce((s, c) => s + c.slots, 0);
       extra = total - beats;
     }
   }
 
-  // Si falta, sumar al último acorde
   total = chords.reduce((s, c) => s + c.slots, 0);
   if (total < beats) {
     chords[chords.length - 1].slots += beats - total;
@@ -76,20 +67,18 @@ function resizeBarToBeats(bar: Bar, beats: number): Bar {
 interface EditorState {
   project: Project;
   currentSectionId: string;
-
-  showDurationControls: boolean;
   
+  showDurationControls: boolean;
 
-  /** NUEVO: número de tiempos por compás (3 = 3/4, 4 = 4/4, etc.) */
   beatsPerBar: number;
   setBeatsPerBar: (beats: number) => void;
-
+  insertBarAfter: (sectionId: string, barIndex: number) => void;
   setProject: (project: Project) => void;
   setCurrentSectionId: (id: string) => void;
   setProjectTitle: (title: string) => void;
+  moveBar: (sectionId: string, fromIndex: number, toIndex: number) => void;
   toggleDurationControls: () => void;
 
-  /** Actualiza el texto de un acorde (persistente) */
   updateChord: (
     sectionId: string,
     barIndex: number,
@@ -97,15 +86,13 @@ interface EditorState {
     chord: string
   ) => void;
 
-  /** Añade un compás vacío al final de una sección */
   addEmptyBarAtEnd: (sectionId: string) => void;
-
-  /** Asegura que exista el siguiente compás (barIndex + 1) en una sección */
   ensureNextBar: (sectionId: string, barIndex: number) => void;
+
+  deleteLastBar: (sectionId: string) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
-  // Estado nuevo por defecto: 4/4
   beatsPerBar: 4,
 
   project: {
@@ -123,16 +110,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   currentSectionId: "sec1",
-
   showDurationControls: true,
 
   setProject: (project) => set({ project }),
   setCurrentSectionId: (id) => set({ currentSectionId: id }),
 
   setProjectTitle: (title) => {
-  const project = get().project;
-  set({ project: { ...project, title } });
-},
+    const project = get().project;
+    set({ project: { ...project, title } });
+  },
 
   toggleDurationControls: () =>
     set((state) => ({
@@ -204,6 +190,64 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
 
       return { ...sec, bars };
+    });
+
+    set({ project: { ...project, sections } });
+  },
+
+    insertBarAfter: (sectionId, barIndex) => {
+    const project = get().project;
+    const beats = get().beatsPerBar;
+
+    const sections = project.sections.map((sec) => {
+      if (sec.id !== sectionId) return sec;
+
+      const bars = [...sec.bars];
+      const newBar: Bar = { chords: [{ chord: "", slots: beats }] };
+
+      bars.splice(barIndex + 1, 0, newBar);
+
+      return { ...sec, bars };
+    });
+
+    set({ project: { ...project, sections } });
+  },
+
+  moveBar: (sectionId, fromIndex, toIndex) => {
+  const project = get().project;
+
+  const sections = project.sections.map((sec) => {
+    if (sec.id !== sectionId) return sec;
+
+    const bars = [...sec.bars];
+    if (
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= bars.length ||
+      toIndex >= bars.length ||
+      fromIndex === toIndex
+    ) {
+      return sec;
+    }
+
+    const [moved] = bars.splice(fromIndex, 1);
+    bars.splice(toIndex, 0, moved);
+
+    return { ...sec, bars };
+  });
+
+  set({ project: { ...project, sections } });
+},
+
+  deleteLastBar: (sectionId) => {
+    const project = get().project;
+
+    const sections = project.sections.map((sec) => {
+      if (sec.id !== sectionId) return sec;
+
+      if (sec.bars.length <= 1) return sec;
+
+      return { ...sec, bars: sec.bars.slice(0, -1) };
     });
 
     set({ project: { ...project, sections } });

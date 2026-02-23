@@ -11,6 +11,8 @@ export interface BarCellProps {
   maxSlots?: number;
 }
 
+
+
 const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
   ({ sectionId, barIndex, barRefs, createNextBar, maxSlots = 4 }, ref) => {
     const chordRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -18,6 +20,9 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
     const project = useEditorStore((s) => s.project);
     const setProject = useEditorStore((s) => s.setProject);
     const updateChord = useEditorStore((s) => s.updateChord);
+    const deleteLastBar = useEditorStore((s) => s.deleteLastBar);
+    const insertBarAfter = useEditorStore((s) => s.insertBarAfter);
+    const moveBar = useEditorStore((s) => s.moveBar);
 
     // ✅ NUEVO: action del store para asegurar el siguiente compás
     const ensureNextBar = useEditorStore((s) => s.ensureNextBar);
@@ -29,6 +34,9 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
     if (!bar) return null;
 
     const chords = bar.chords;
+
+    const showPrimaryNumber = barIndex % 4 === 0;
+
 
     /** Garantiza SIEMPRE suma = maxSlots */
 const normalizeSlots = () => {
@@ -84,6 +92,8 @@ const normalizeSlots = () => {
         return;
       }
 
+      
+
       // next
       if (fromChordIndex < chords.length - 1) {
         focusChord(barIndex, fromChordIndex + 1);
@@ -117,9 +127,82 @@ const normalizeSlots = () => {
       focusChord(barIndex + 1, 0);
     };
 
+    const splitChordAt = (idxToSplit: number) => {
+  const current = chords[idxToSplit];
+  if (!current) return;
+
+  // no se puede dividir más
+  if (current.slots <= 1) return;
+
+  const newSlots = Math.floor(current.slots / 2);
+  current.slots -= newSlots;
+
+  chords.splice(idxToSplit + 1, 0, {
+    chord: "",
+    slots: newSlots,
+  });
+
+  normalizeSlots();
+  setProject({ ...project });
+
+  // foco al nuevo acorde
+  setTimeout(() => focusChord(barIndex, idxToSplit + 1), 0);
+};
+
+//HANDLERS
+
+
+
+const handleInsertBarAfter = () => {
+  insertBarAfter(sectionId, barIndex);
+
+  // Enfocar el nuevo compás insertado
+  setTimeout(() => {
+    focusChord(barIndex + 1, 0);
+  }, 0);
+};
+
+const handleDragStart = (e: React.DragEvent) => {
+  document.body.classList.add("dragging-bars");
+  e.dataTransfer.setData("text/plain", String(barIndex));
+  e.dataTransfer.effectAllowed = "move";
+
+  // Esto ayuda a que el drag se “enganche” bien en algunos navegadores
+  const img = new Image();
+  img.src =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3C/svg%3E";
+  e.dataTransfer.setDragImage(img, 0, 0);
+};
+
+const handleDragEnd = () => {
+  document.body.classList.remove("dragging-bars");
+  document.querySelectorAll(".drop-target").forEach((el) => el.classList.remove("drop-target"));
+};
+
+const handleDragOver = (e: React.DragEvent) => {
+  e.preventDefault(); // necesario para permitir drop
+  e.dataTransfer.dropEffect = "move";
+};
+
+const handleDrop = (e: React.DragEvent) => {
+  e.preventDefault();
+  const from = Number(e.dataTransfer.getData("text/plain"));
+  const to = barIndex;
+
+  if (Number.isNaN(from)) return;
+  moveBar(sectionId, from, to);
+
+  // opcional: foco al primer acorde del compás “en su nueva posición”
+  setTimeout(() => {
+    // cuando mueves hacia delante, el índice del elemento cambia
+    const newIndex = from < to ? to - 1 : to;
+    focusChord(newIndex, 0);
+  }, 0);
+};
+
     return (
       <div
-        className="bar-cell flex w-full overflow-hidden"
+        className="bar-cell overflow-hidden"
         style={{ minWidth: 0 }}
         ref={(el) => {
           barRefs.current[barIndex] = el!;
@@ -127,7 +210,55 @@ const normalizeSlots = () => {
           else if (ref)
             (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
         }}
+onDragOver={(e) => {
+  handleDragOver(e);
+  e.currentTarget.classList.add("drop-target");
+}}
+onDrop={(e) => {
+  e.currentTarget.classList.remove("drop-target");
+  handleDrop(e);
+}}
+
       >
+        
+          {/* handle de arrastre */}
+          <button
+            type="button"
+            className="drag-handle"
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            //onMouseDown={(e) => e.preventDefault()} // no perder foco raro
+            aria-label="Arrastrar compás"
+            title="Arrastrar compás"
+          >
+            ≡
+          </button>
+
+
+        {showPrimaryNumber && (
+          <span className="bar-number primary">
+            {barIndex + 1}
+          </span>
+        )}
+
+        {/* Número secundario (solo para hover) */}
+        <span className="bar-number hover-only">
+          {barIndex + 1}
+        </span>
+        <button
+          type="button"
+          className="insert-bar-btn"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleInsertBarAfter();
+          }}
+          aria-label="Insertar compás"
+          title="Insertar compás"
+        >
+          ↔
+        </button>
         {chords.map((chordObj, idx) => (
           <ChordBlock
             key={idx}
@@ -136,6 +267,7 @@ const normalizeSlots = () => {
             maxSlots={maxSlots}
             barIndex={barIndex}
             chordIndex={idx}
+            onSplit={() => splitChordAt(idx)}
             autoFocus={idx === 0 && barIndex === 0}
             inputRef={(el) => (chordRefs.current[idx] = el)}
             onMove={(dir) => move(idx, dir)}
@@ -145,8 +277,9 @@ const normalizeSlots = () => {
               const current = chords[idx];
 
               // 1) CTRL+ENTER: dividir siempre dentro del compás (aunque sea 4)
-              if (e.ctrlKey || e.metaKey) {
-                if (current.slots <= 1) return;
+if (e.ctrlKey || e.metaKey) {
+  splitChordAt(idx);
+  return;
 
                 const newSlots = Math.floor(current.slots / 2);
                 current.slots -= newSlots;
@@ -292,18 +425,39 @@ onSlotsChange={(requestedSlots) => {
   setProject({ ...project });
 }}
             /** Delete chord */
-            onDelete={() => {
-              if (chords.length === 1) return;
+  onDelete={() => {
+    // ✅ Si es el único acorde del compás, intentamos borrar compás (solo si es el último)
+    if (chords.length === 1) {
+      const isLastBar = barIndex === section.bars.length - 1;
+      const canDeleteBar = isLastBar && section.bars.length > 1;
 
-              const removed = chords.splice(idx, 1)[0];
-              chords[chords.length - 1].slots += removed.slots;
+      if (canDeleteBar) {
+        deleteLastBar(sectionId);
 
-              normalizeSlots();
-              setProject({ ...project });
+        // foco al último compás nuevo (que ahora será el anterior)
+        setTimeout(() => {
+          const newLastBarIndex = barIndex - 1;
+          focusChord(newLastBarIndex, 0);
+        }, 0);
 
-              // mover foco de forma natural
-              setTimeout(() => move(Math.min(idx, chords.length - 1), "prev"), 0);
-            }}
+        return;
+      }
+
+      // Si no se puede borrar (no es el último o es el único compás),
+      // en vez de "no hacer nada", lo más natural es vaciar el acorde
+      updateChord(sectionId, barIndex, 0, "");
+      return;
+    }
+
+    // ✅ Caso normal: borrar acorde dentro del compás
+    const removed = chords.splice(idx, 1)[0];
+    chords[chords.length - 1].slots += removed.slots;
+
+    normalizeSlots();
+    setProject({ ...project });
+
+    setTimeout(() => move(Math.min(idx, chords.length - 1), "prev"), 0);
+  }}
           />
         ))}
       </div>

@@ -16,49 +16,46 @@ const TopBar: React.FC<Props> = ({ tempo }) => {
   const showDurationControls = useEditorStore((s) => s.showDurationControls);
   const toggleDurationControls = useEditorStore((s) => s.toggleDurationControls);
 
-  return (
-    <div className="bg-gray-800 text-white px-6 py-4 flex items-center justify-between gap-6 shadow-md">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setProjectTitle(e.target.value)}
-        className="bg-transparent border-none text-2xl font-bold outline-none text-center"
-        placeholder="Título de la canción"
-      />
+return (
+  <div className="topbar">
+    <input
+      type="text"
+      value={title}
+      onChange={(e) => setProjectTitle(e.target.value)}
+      className="topbar-title"
+      placeholder="Título de la canción"
+    />
 
-      <div className="flex items-center gap-3">
-        <span>{tempo} BPM</span>
+    <div className="topbar-controls">
+      <span className="topbar-tempo">{tempo} BPM</span>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Compás:</span>
+      <div className="topbar-time">
+        <span className="label">Compás:</span>
 
-          {[3, 4, 6].map((b) => (
-            <button
-              key={b}
-              type="button"
-              onClick={() => setBeatsPerBar(b)}
-              className={`px-2 py-1 rounded text-sm ${
-                beatsPerBar === b ? "bg-gray-700 text-white" : "bg-gray-200"
-              }`}
-              title={`${b}/4`}
-            >
-              {b}/4
-            </button>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={toggleDurationControls}
-          className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600 text-sm"
-          aria-pressed={showDurationControls}
-          title="Mostrar u ocultar duraciones"
-        >
-          Duraciones: {showDurationControls ? "ON" : "OFF"}
-        </button>
+        {[3, 4, 6].map((b) => (
+          <button
+            key={b}
+            type="button"
+            onClick={() => setBeatsPerBar(b)}
+            className={`time-btn ${beatsPerBar === b ? "active" : ""}`}
+            title={`${b}/4`}
+          >
+            {b}/4
+          </button>
+        ))}
       </div>
+
+      <button
+        type="button"
+        onClick={toggleDurationControls}
+        className="duration-btn"
+        aria-pressed={showDurationControls}
+      >
+        Duraciones: {showDurationControls ? "ON" : "OFF"}
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default TopBar;

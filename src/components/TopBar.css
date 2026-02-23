@@ -1,19 +1,87 @@
+/* Barra superior centrada dentro del contenedor */
 .topbar {
-  padding: 14px 16px;
-  background: white;
-  border-bottom: 1px solid rgba(0,0,0,0.10);
+  max-width: 1100px;
+  margin: 18px auto;
+  padding: 18px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  background: #1f2937;
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
 }
 
+/* Título editable */
 .topbar-title {
-  font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+  background: transparent;
+  border: none;
+  outline: none;
+
   font-size: 28px;
   font-weight: 700;
-  letter-spacing: 0.3px;
+  color: white;
+
+  min-width: 240px;
 }
 
-.topbar-meta {
-  margin-top: 4px;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-size: 12px;
-  color: rgba(0,0,0,0.55);
+/* Zona derecha */
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* BPM */
+.topbar-tempo {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Compás */
+.topbar-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* Botones de compás */
+.time-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+
+  background: #e5e7eb;
+  color: #111;
+  font-size: 13px;
+}
+
+.time-btn.active {
+  background: #374151;
+  color: white;
+}
+
+/* Botón duraciones */
+.duration-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+
+  background: #374151;
+  color: white;
+  font-size: 13px;
+}
+
+.duration-btn:hover {
+  background: #4b5563;
 }
