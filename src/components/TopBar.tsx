@@ -50,8 +50,9 @@ return (
         onClick={toggleDurationControls}
         className="duration-btn"
         aria-pressed={showDurationControls}
+        title="Cambiar modo"
       >
-        Duraciones: {showDurationControls ? "ON" : "OFF"}
+        Modo: {showDurationControls ? "Editar" : "Print"}
       </button>
     </div>
   </div>

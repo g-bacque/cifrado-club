@@ -1,69 +1,122 @@
 /* ===============================
-   CONTROLES OCULTOS POR DEFECTO
+   CHORD INPUT
 ================================ */
-
-.chord-block .duration-input,
-.chord-block .split-btn,
-.chord-block button[aria-label="Delete chord"] {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-}
-
-/* ===============================
-   VISIBLES CON FOCO (móvil + desktop)
-================================ */
-
-.chord-block:focus-within .duration-input,
-.chord-block:focus-within .split-btn,
-.chord-block:focus-within button[aria-label="Delete chord"] {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ===============================
-   VISIBLES CON HOVER (desktop)
-================================ */
-
-.chord-block:hover .duration-input,
-.chord-block:hover .split-btn,
-.chord-block:hover button[aria-label="Delete chord"] {
-  opacity: 1;
-  pointer-events: auto;
-}
 
 .chord-block {
   position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
+
 .chord-input {
+  margin: 0;
+  transition: transform 140ms ease;
+
+  display: block;
   width: 100%;
+
+  font-family: "Kalam", system-ui, sans-serif;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.92);
+
   background: transparent;
   border: 1px solid transparent;
+  border-radius: 8px;
+
+  padding: 2px 4px;
   outline: none;
 
   text-align: center;
-  font-size: 18px;
-  font-weight: 700;
   line-height: 1.1;
+  letter-spacing: 0.2px;
 
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
-
-  padding: 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* solo se ve el borde al editar */
+/* borde suave al editar */
 .chord-input:focus {
-  border-color: rgba(0, 0, 0, 0.35);
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.02);
 }
 
-/* Botón táctil de añadir acorde */
-.split-btn {
-  position: absolute;
-  right: 2px;
-  bottom: 2px;
+/* ===============================
+   SIZE RULES (por nº acordes y longitud)
+================================ */
 
+/* Base grande por defecto */
+.bar-cell .chord-input {
+  font-size: 24px;
+}
+
+/* Según cantidad de acordes en el compás */
+.bar-cell.chords-2 .chord-input { font-size: 20px; }
+.bar-cell.chords-3 .chord-input { font-size: 17px; }
+.bar-cell.chords-4 .chord-input { font-size: 15px; }
+.bar-cell.chords-5 .chord-input { font-size: 14px; }
+.bar-cell.chords-6 .chord-input { font-size: 13px; }
+
+/* Ajuste extra por longitud del texto */
+.bar-cell .chord-len-md .chord-input { font-size: calc(1em - 1px); }
+.bar-cell .chord-len-lg .chord-input { font-size: calc(1em - 2px); }
+.bar-cell .chord-len-xl .chord-input { font-size: calc(1em - 3px); }
+
+/* ===============================
+   CONTROLS STACK (duración arriba, x/+ abajo)
+================================ */
+
+.chord-controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 6px;
+}
+
+/* visibles en hover/focus */
+.chord-block:focus-within {
+  background: rgba(226, 230, 122, 0.20);
+  border-radius: 10px;
+}
+.chord-block:focus-within .chord-controls,
+.chord-block:hover .chord-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Al entrar en focus, subimos el acorde para dejar espacio */
+.chord-block:focus-within .chord-input {
+  transform: translateY(-8px);
+}
+
+/* Duración compacta */
+.duration-input {
+  width: 44px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* fila de botones (x y +) juntos */
+.chord-controls-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* botones compactos */
+.delete-btn,
+.split-btn {
   width: 20px;
   height: 20px;
 
@@ -80,16 +133,9 @@
   justify-content: center;
 
   cursor: pointer;
-
-  opacity: 0;
-  transition: opacity 120ms ease;
 }
 
-.chord-block:hover .split-btn,
-.chord-block:focus-within .split-btn {
-  opacity: 1;
-}
-
+.delete-btn:hover,
 .split-btn:hover {
   background: rgba(255, 255, 255, 0.95);
   color: rgba(0, 0, 0, 0.85);

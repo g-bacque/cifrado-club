@@ -202,7 +202,7 @@ const handleDrop = (e: React.DragEvent) => {
 
     return (
       <div
-        className="bar-cell overflow-hidden"
+        className={`bar-cell overflow-hidden chords-${chords.length}`}
         style={{ minWidth: 0 }}
         ref={(el) => {
           barRefs.current[barIndex] = el!;

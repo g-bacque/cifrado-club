@@ -1,41 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Permanent+Marker&display=swap");
+
 /* Fondo general */
 .editor-page {
   min-height: 100vh;
   background: #f4f5f7;
   padding: 28px 18px;
   box-sizing: border-box;
-  height: auto;
 }
 
 /* Contenedor centrado */
 .editor-shell {
-  max-width: 1100px;   /* o lo que uses */
+  max-width: 980px;              /* más “hoja”, menos app */
   margin: 0 auto;
-  background: white;
-  border-radius: 18px;
-  padding: 18px;
-
-  min-height: 100vh;   /* ✅ al menos pantalla completa */
-  height: auto;        /* ✅ crece con contenido */
-  overflow: visible;   /* ✅ no recorta */
+  background: transparent;       /* la hoja real será editor-main */
+  padding: 0;
 }
 
 /* La “hoja” */
 .editor-main {
-
-  padding: 18px;
-  overflow: visible;   /* ✅ no recorta */
-  height: auto;        /* ✅ */
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-
   background: #ffffff;
-  border-radius: 16px;
-  padding: 26px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;           /* menos “card”, más hoja */
+  padding: 54px 56px;            /* aire real book */
   border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.10);
 
+  display: block;                /* importante: comportamiento de documento */
+  overflow: visible;
+  height: auto;
 }
 
 /* Importante para que nada empuje el layout */
@@ -45,4 +36,58 @@
 
 .editor-main .chord-grid {
   overflow: visible;
+}
+
+/* ============================
+   PRINT / PRESENTATION MODE
+============================ */
+
+@media print {
+  .topbar {
+    display: none !important;
+  }
+
+  .editor-page {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  .editor-main {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  /* Por seguridad, fuera botones */
+  .chord-controls,
+  .add-bar-btn,
+  .insert-bar-btn,
+  .drag-handle {
+    display: none !important;
+  }
+}
+
+/* ============================
+   PRINT MODE (Sheet)
+============================ */
+
+/* Ocultar controles de acorde */
+.mode-print .chord-controls {
+  display: none !important;
+}
+
+/* Ocultar botones de compás */
+.mode-print .add-bar-btn,
+.mode-print .insert-bar-btn,
+.mode-print .drag-handle {
+  display: none !important;
+}
+
+/* Que no aparezcan bordes de foco ni desplazamientos */
+.mode-print .chord-input:focus {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+.mode-print .chord-block:focus-within .chord-input {
+  transform: none !important;
 }

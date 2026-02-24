@@ -74,8 +74,8 @@
   align-items: center;
   justify-content: space-between;
 
-  margin: 10px 0 12px 0;
-  padding: 6px 2px;
+  margin: 0 0 22px 0;
+  padding: 0;
 }
 
 .section-left {
@@ -84,33 +84,44 @@
   gap: 10px;
 }
 
-.section-title {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-
-  font-size: 18px;
-  font-weight: 800;
-  color: rgba(0, 0, 0, 0.8);
-  padding: 4px 8px;
-  border-radius: 10px;
-}
-
-.section-title:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
+/* Título grande tipo Real Book */
+.section-title,
 .section-title-input {
-  font-size: 18px;
-  font-weight: 800;
+  font-family: "Permanent Marker", system-ui, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: rgba(0, 0, 0, 0.92);
+}
 
-  padding: 4px 8px;
+/* Subrayado grueso */
+.section-title {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 8px 6px 6px;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 0;
+  top: 34px;/* AJUSTAR SI ES NECESARIO */
+  height: 4px;
+  background: rgba(0, 0, 0, 0.88);
+  border-radius: 3px;
+}
+
+/* Input al editar */
+.section-title-input {
+  border: 1px solid rgba(0,0,0,0.18);
   border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  padding: 6px 10px;
   outline: none;
-
-  width: 220px;
-  max-width: 40vw;
+  max-width: 60vw;
 }
 
 .section-nav-btn {
@@ -139,17 +150,52 @@
 .new-section-btn {
   padding: 8px 10px;
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.10);
 
-  background: rgba(255, 255, 255, 0.75);
+  /* Fondo translúcido */
+  background: rgba(255, 255, 255, 0.35);
+
   cursor: pointer;
 
   font-weight: 800;
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.15);
+
+  transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
+/* Hover = sólido */
 .new-section-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.20);
+  background: rgba(199, 230, 189, 0.95);
   color: rgba(0, 0, 0, 0.85);
+}
+
+/* ============================
+   PRINT MODE (Section header)
+============================ */
+
+/* Ocultar botón New Section */
+.mode-print .new-section-btn {
+  display: none !important;
+}
+
+/* Ocultar flechas de navegación */
+.mode-print .section-nav-btn {
+  display: none !important;
+}
+
+/* Si el título es input editable, que parezca texto */
+.mode-print .section-title-input {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.mode-print .section-title {
+  cursor: default;
 }

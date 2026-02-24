@@ -1,6 +1,7 @@
 
 
 .bar-cell {
+    container-type: inline-size;
   position: relative;
 
   display: flex;
@@ -14,14 +15,17 @@
   min-width: 0;
   box-sizing: border-box;
 
-  padding: 10px 6px;
+
   background: transparent;
 
-  border-right: 2px solid rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  padding: 10px 8px;
+
+  border-right: 2px solid rgba(0, 0, 0, 0.80);
 }
 
 .bar-system .bar-cell:first-child {
-  border-left: 2px solid rgba(0, 0, 0, 0.55);
+  border-left: 2px solid rgba(0, 0, 0, 0.80);
 }
 
 /* Solo el primer compás de la fila dibuja la barra izquierda */

@@ -38,6 +38,14 @@ const ChordBlock: React.FC<Props> = ({
   const internalRef = useRef<HTMLInputElement>(null);
   const showDurationControls = useEditorStore((s) => s.showDurationControls);
 
+  /** ✅ NUEVO: clase según longitud del acorde */
+  const len = (chord || "").trim().length;
+  const lenClass =
+    len >= 8 ? "chord-len-xl" :
+    len >= 6 ? "chord-len-lg" :
+    len >= 4 ? "chord-len-md" :
+    "chord-len-sm";
+
   /** autofocus */
   useEffect(() => {
     if (autoFocus) internalRef.current?.focus();
@@ -49,21 +57,18 @@ const ChordBlock: React.FC<Props> = ({
   }, [inputRef]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // ENTER: lo gestiona BarCell (divide slots / crea compás)
     if (e.key === "Enter") {
       e.preventDefault();
       onEnter?.(e);
       return;
     }
 
-    // TAB: navegar sin salir del grid
     if (e.key === "Tab") {
       e.preventDefault();
       onMove?.(e.shiftKey ? "prev" : "next");
       return;
     }
 
-    // FLECHAS: moverte con el cursor al borde
     if (e.key === "ArrowLeft") {
       const el = e.currentTarget;
       if (el.selectionStart === 0 && el.selectionEnd === 0) {
@@ -83,14 +88,12 @@ const ChordBlock: React.FC<Props> = ({
       }
     }
 
-    // BACKSPACE en vacío: borrar acorde (si existe handler)
     if (e.key === "Backspace") {
       if (!e.currentTarget.value.trim()) {
         onDelete?.();
       }
     }
 
-    // DELETE: borrar acorde
     if (e.key === "Delete") {
       onDelete?.();
     }
@@ -98,7 +101,7 @@ const ChordBlock: React.FC<Props> = ({
 
   return (
     <div
-      className="chord-block relative flex flex-col items-stretch overflow-hidden"
+      className={`chord-block ${lenClass} relative flex flex-col items-stretch overflow-hidden`}
       style={{
         flex: `${slots} 1 0%`,
         minWidth: 0,
@@ -118,53 +121,56 @@ const ChordBlock: React.FC<Props> = ({
         autoCorrect="off"
       />
 
-      {/* SLOT INPUT */}
-      {showDurationControls && (
-        <input
-          type="number"
-          min={1}
-          max={maxSlots}
-          value={slots}
-          onChange={(e) => {
-            const newSlots = Math.max(1, Math.min(Number(e.target.value), maxSlots));
-            onSlotsChange?.(newSlots);
-          }}
-          className="duration-input border rounded px-1 py-0.5 text-center mt-1"
-        />
-      )}
+{/* CONTROLS STACK (solo visible en focus/hover via CSS) */}
+<div className="chord-controls" aria-hidden="true">
+  {showDurationControls && (
+    <input
+      type="number"
+      min={1}
+      max={maxSlots}
+      value={slots}
+      onChange={(e) => {
+        const newSlots = Math.max(1, Math.min(Number(e.target.value), maxSlots));
+        onSlotsChange?.(newSlots);
+      }}
+      className="duration-input border rounded px-1 py-0.5 text-center"
+    />
+  )}
 
-      {/* DELETE BUTTON */}
-      {onDelete && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute top-0 right-0 text-red-500 text-xs font-bold px-1"
-          aria-label="Delete chord"
-          title="Delete chord"
-        >
-          ×
-        </button>
-      )}
-      
-      {/*SPLIT BUTTON*/}
-      {onSplit && (
-        <button
-          type="button"
-          className="split-btn"
-          onMouseDown={(e) => e.preventDefault()} 
-          onClick={(e) => {
-            e.stopPropagation();
-            onSplit();
-          }}
-          aria-label="Añadir acorde"
-          title="Añadir acorde"
-        >
-          +
-        </button>
-      )}
+  <div className="chord-controls-row">
+    {onDelete && (
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="delete-btn"
+        aria-label="Delete chord"
+        title="Delete chord"
+      >
+        ×
+      </button>
+    )}
+
+    {onSplit && (
+      <button
+        type="button"
+        className="split-btn"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSplit();
+        }}
+        aria-label="Añadir acorde"
+        title="Añadir acorde"
+      >
+        +
+      </button>
+    )}
+  </div>
+</div>
     </div>
   );
 };
