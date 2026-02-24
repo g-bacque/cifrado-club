@@ -1,5 +1,5 @@
 /* ===============================
-   CHORD INPUT
+   CHORD BLOCK (layout base)
 ================================ */
 
 .chord-block {
@@ -10,16 +10,37 @@
   align-items: stretch;
   justify-content: center;
 
-  padding-top: 6px;
-  padding-bottom: 6px;
+  height: 100%; /* necesario para centrar vertical */
+  padding: 6px 0;
+
+  /* Ajustes fáciles */
+  --controls-space: 30px;   /* hueco reservado cuando hay controles */
+  --lift: 12px;             /* cuánto sube el acorde en hover/focus */
+  --controls-bottom: 8px;   /* distancia de controles al borde inferior */
+  --controls-gap: 8px;      /* separación vertical entre duración y fila de botones */
+  --row-gap: 6px;           /* separación entre x y + */
 }
+
+/* Resaltado sutil al foco */
+.chord-block:focus-within {
+  background: rgba(226, 230, 122, 0.20);
+  border-radius: 10px;
+}
+
+/* Cuando hay hover/focus, dejamos sitio para controles */
+.chord-block:hover,
+.chord-block:focus-within {
+  padding-bottom: var(--controls-space);
+}
+
+/* ===============================
+   CHORD INPUT
+================================ */
 
 .chord-input {
   margin: 0;
-  transition: transform 140ms ease;
-
-  display: block;
   width: 100%;
+  display: block;
 
   font-family: "Kalam", system-ui, sans-serif;
   font-weight: 700;
@@ -39,6 +60,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  transition: transform 140ms ease;
 }
 
 /* borde suave al editar */
@@ -47,23 +70,24 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
+/* Subimos el acorde cuando aparecen controles */
+.chord-block:hover .chord-input,
+.chord-block:focus-within .chord-input {
+  transform: translateY(calc(-1 * var(--lift)));
+}
+
 /* ===============================
    SIZE RULES (por nº acordes y longitud)
 ================================ */
 
-/* Base grande por defecto */
-.bar-cell .chord-input {
-  font-size: 24px;
-}
+.bar-cell .chord-input { font-size: 24px; }
 
-/* Según cantidad de acordes en el compás */
 .bar-cell.chords-2 .chord-input { font-size: 20px; }
 .bar-cell.chords-3 .chord-input { font-size: 17px; }
 .bar-cell.chords-4 .chord-input { font-size: 15px; }
 .bar-cell.chords-5 .chord-input { font-size: 14px; }
 .bar-cell.chords-6 .chord-input { font-size: 13px; }
 
-/* Ajuste extra por longitud del texto */
 .bar-cell .chord-len-md .chord-input { font-size: calc(1em - 1px); }
 .bar-cell .chord-len-lg .chord-input { font-size: calc(1em - 2px); }
 .bar-cell .chord-len-xl .chord-input { font-size: calc(1em - 3px); }
@@ -73,32 +97,26 @@
 ================================ */
 
 .chord-controls {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
+  position: absolute;
+  left: 50%;
+  bottom: var(--controls-bottom);
+  transform: translateX(-50%);
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--controls-gap);
 
-  margin-top: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
 }
 
-/* visibles en hover/focus */
-.chord-block:focus-within {
-  background: rgba(226, 230, 122, 0.20);
-  border-radius: 10px;
-}
-.chord-block:focus-within .chord-controls,
-.chord-block:hover .chord-controls {
+/* visible en hover/focus */
+.chord-block:hover .chord-controls,
+.chord-block:focus-within .chord-controls {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* Al entrar en focus, subimos el acorde para dejar espacio */
-.chord-block:focus-within .chord-input {
-  transform: translateY(-8px);
 }
 
 /* Duración compacta */
@@ -111,7 +129,7 @@
 /* fila de botones (x y +) juntos */
 .chord-controls-row {
   display: flex;
-  gap: 6px;
+  gap: var(--row-gap);
 }
 
 /* botones compactos */

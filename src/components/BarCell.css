@@ -1,13 +1,16 @@
-
+/* =========================================================
+   BAR CELL (measure)
+========================================================= */
 
 .bar-cell {
-    container-type: inline-size;
+  container-type: inline-size;
   position: relative;
 
   display: flex;
-  flex-direction: row;    /* ✅ acordes en horizontal */
+  flex-direction: row;      /* acordes en horizontal */
   align-items: stretch;
 
+  /* ancho fijo relativo a la “hoja” */
   flex: 0 0 calc(
     (100% - (var(--gap) * (var(--bars-per-row) - 1))) / var(--bars-per-row)
   );
@@ -15,53 +18,52 @@
   min-width: 0;
   box-sizing: border-box;
 
-
   background: transparent;
-
   border-radius: 0;
+
   padding: 10px 8px;
 
+  /* líneas verticales tipo Real Book */
   border-right: 2px solid rgba(0, 0, 0, 0.80);
 }
 
+/* cada chord ocupa toda la altura del compás */
+.bar-cell .chord-block {
+  height: 100%;
+}
+
+/* solo el primer compás del sistema dibuja la línea izquierda */
 .bar-system .bar-cell:first-child {
   border-left: 2px solid rgba(0, 0, 0, 0.80);
 }
 
-/* Solo el primer compás de la fila dibuja la barra izquierda */
-.bar-row .bar-cell:first-child {
-  border-left: 2px solid rgba(0, 0, 0, 0.55);
-}
+/* =========================================================
+   BAR NUMBER
+========================================================= */
 
-/* --- NÚMERO BASE --- */
 .bar-number {
   position: absolute;
   top: -14px;
   left: 2px;
 
+  font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.45);
-
-  font-family: ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.3px;
+
+  color: rgba(0, 0, 0, 0.45);
 
   user-select: none;
   pointer-events: none;
 }
 
-/* --- NÚMERO CADA 4 COMPASES --- */
-.bar-number.primary {
-  opacity: 1;
-}
-
-/* --- NÚMERO SOLO EN HOVER --- */
+/* número “secundario” aparece en hover */
 .bar-number.hover-only {
   opacity: 0;
   transition: opacity 120ms ease;
 }
 
-/* Mostrar al pasar el ratón */
+/* en hover: mostramos hover-only y ocultamos el primary */
 .bar-cell:hover .bar-number.hover-only {
   opacity: 1;
 }
@@ -70,99 +72,284 @@
   opacity: 0;
 }
 
-/* Botón para insertar compás entre compases */
+/* =========================================================
+   TOP BUTTONS (drag + insert)
+   visibles en hover/focus, y siempre visibles mientras arrastras
+========================================================= */
+
+.drag-handle,
 .insert-bar-btn {
   position: absolute;
-
-  /* 👇 encima de la barra vertical */
-  top: -12px;
-
-  /* 👇 centrado sobre el borde derecho del compás */
-  right: -11px;
-
-  z-index: 10;
-
-  width: 22px;
-  height: 22px;
-
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-
-  background: rgba(255, 255, 255, 0.95);
-  color: rgba(0, 0, 0, 0.7);
-
-  font-size: 14px;
-  font-weight: 800;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-}
-
-/* Hover desktop */
-.bar-cell:hover .insert-bar-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Focus móvil/tablet */
-.bar-cell:focus-within .insert-bar-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.insert-bar-btn:hover {
-  background: white;
-  color: black;
-  border-color: rgba(0, 0, 0, 0.45);
-}
-
-.drag-handle {
-  position: absolute;
-  left: -2px;
   top: -12px;
   z-index: 12;
 
   width: 22px;
   height: 22px;
 
-  border-radius: 7px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
   background: rgba(255, 255, 255, 0.95);
-  color: rgba(0, 0, 0, 0.6);
-
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1;
+  border: 1px solid rgba(0, 0, 0, 0.25);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  cursor: grab;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+
+  color: rgba(0, 0, 0, 0.65);
 
   opacity: 0;
   pointer-events: none;
   transition: opacity 120ms ease;
+
+  cursor: pointer;
+}
+
+/* posiciones específicas */
+.drag-handle {
+  left: -2px;
+  border-radius: 7px;
+  cursor: grab;
 }
 
 .drag-handle:active {
   cursor: grabbing;
 }
 
-/* visible en hover o foco (igual que tus controles) */
+.insert-bar-btn {
+  right: -11px; /* centrado sobre la línea vertical derecha */
+  border-radius: 50%;
+}
+
+/* visible en hover y focus */
 .bar-cell:hover .drag-handle,
-.bar-cell:focus-within .drag-handle {
+.bar-cell:hover .insert-bar-btn,
+.bar-cell:focus-within .drag-handle,
+.bar-cell:focus-within .insert-bar-btn {
   opacity: 1;
   pointer-events: auto;
 }
+
+/* mientras arrastras, que se mantenga visible */
 body.dragging-bars .drag-handle {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* hover look */
+.drag-handle:hover,
+.insert-bar-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.45);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* =========================================================
+   TIME SIGNATURE LABEL
+========================================================= */
+
+.time-sig {
+  position: absolute;
+  left: 0;
+  top: -16px;
+
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+  color: rgba(0, 0, 0, 0.62);
+
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PER-BAR TIME SIGNATURE CONTROLS
+========================================================= */
+
+/*.bar-timesig-controls {
+  position: absolute;
+  top: -34px;        /* ✅ más arriba = más gap visual 
+  right: 2px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.bar-cell:hover .bar-timesig-controls,
+.bar-cell:focus-within .bar-timesig-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ts-btn {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.70);
+  border-radius: 8px;
+
+  padding: 2px 6px;
+
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.62);
+
+  cursor: pointer;
+}
+
+.ts-btn:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.22);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.ts-btn.active {
+  background: rgba(0, 0, 0, 0.86);
+  border-color: rgba(0, 0, 0, 0.86);
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.ts-btn.reset {
+  font-weight: 900;
+}
+*/
+/* =========================================================
+   TIME SIGNATURE UI (trigger + menu)
+========================================================= */
+
+.bar-timesig {
+  position: absolute;
+  top: -34px;     /* ✅ más aire respecto a los acordes */
+  right: 2px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+/* ✅ cuando el compás tiene hover, aparece el trigger */
+.bar-cell:hover .bar-timesig,
+.bar-cell:focus-within .bar-timesig {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Trigger (el compás actual) */
+.ts-trigger {
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.70);
+  border-radius: 8px;
+
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(0,0,0,0.62);
+
+  cursor: pointer;
+}
+
+.ts-trigger:hover {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.22);
+  color: rgba(0,0,0,0.85);
+}
+
+/* Menú: oculto por defecto */
+.ts-menu {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ✅ regla clave:
+   - si NO hay focus, aunque haya hover, no mostramos el menú (solo trigger)
+*/
+.bar-cell:hover .ts-menu {
+  display: none;
+}
+
+/* ✅ si el compás está enfocado y haces hover por el trigger (o dentro del contenedor), se despliega */
+.bar-timesig:hover .ts-menu,
+.bar-timesig:focus-within .ts-menu {
+  display: inline-flex;
+}
+
+/* botones del menú */
+.ts-btn {
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.70);
+  border-radius: 8px;
+
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(0,0,0,0.62);
+
+  cursor: pointer;
+}
+
+.ts-btn:hover {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.22);
+  color: rgba(0,0,0,0.85);
+}
+
+.ts-btn.active {
+  background: rgba(0,0,0,0.86);
+  border-color: rgba(0,0,0,0.86);
+  color: rgba(255,255,255,0.96);
+}
+
+.ts-btn.reset {
+  font-weight: 900;
+}
+
+/* =========================================================
+   DRAG DROP VISUAL
+========================================================= */
+
+.bar-cell.drop-target {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================================
+   TIME SIG CONTROLS: focus = solo activo, hover = todo
+========================================================= */
+
+/* en focus: mostramos el panel pero colapsamos opciones */
+.bar-cell:focus-within .bar-timesig-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* foco: ocultar todos los botones... */
+.bar-cell:focus-within .bar-timesig-controls .ts-btn {
+  display: none;
+}
+
+/* ...pero dejar visible el activo */
+.bar-cell:focus-within .bar-timesig-controls .ts-btn.active {
+  display: inline-flex;
+  
+}
+
+/* opcional: también mostrar el reset en focus (si quieres) */
+.bar-cell:focus-within .bar-timesig-controls .ts-btn.reset {
+  display: inline-flex;
+}
+
+/* hover: mostrar todo */
+.bar-cell:hover .bar-timesig-controls .ts-btn {
+  display: inline-flex;
 }

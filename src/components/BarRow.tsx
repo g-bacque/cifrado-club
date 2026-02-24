@@ -83,16 +83,8 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
       {/* ✅ HEADER DE SECCIÓN */}
       <div className="section-header">
         <div className="section-left">
-          <button
-            type="button"
-            className="section-nav-btn"
-            onClick={goPrev}
-            disabled={!hasPrev}
-            title="Sección anterior"
-            aria-label="Sección anterior"
-          >
-            ‹
-          </button>
+
+
 
           {!isEditingName ? (
             <button
@@ -120,16 +112,6 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
             />
           )}
 
-          <button
-            type="button"
-            className="section-nav-btn"
-            onClick={goNext}
-            disabled={!hasNext}
-            title="Sección siguiente"
-            aria-label="Sección siguiente"
-          >
-            ›
-          </button>
         </div>
 
         <button
@@ -153,6 +135,8 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
               <div className="bar-system">
                 {rowBars.map((_, localIndex) => {
                   const barIndex = rowIndex * BARS_PER_ROW + localIndex;
+                  const bar = section.bars[barIndex];
+                  const effectiveBeats = bar?.beats ?? beatsPerBar;
 
                   return (
                     <BarCell
@@ -161,7 +145,7 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
                       barIndex={barIndex}
                       barRefs={barRefs}
                       createNextBar={createNextBar}
-                      maxSlots={beatsPerBar}
+                      maxSlots={effectiveBeats}
                     />
                   );
                 })}

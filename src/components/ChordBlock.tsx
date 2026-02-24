@@ -12,13 +12,11 @@ interface Props {
   inputRef?: (el: HTMLInputElement | null) => void;
 
   onChordChange?: (value: string) => void;
-
   onEnter?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onSlotsChange?: (slots: number) => void;
   onDelete?: () => void;
   onSplit?: () => void;
 
-  /** Navegación rápida entre acordes */
   onMove?: (direction: "prev" | "next") => void;
 }
 
@@ -38,7 +36,7 @@ const ChordBlock: React.FC<Props> = ({
   const internalRef = useRef<HTMLInputElement>(null);
   const showDurationControls = useEditorStore((s) => s.showDurationControls);
 
-  /** ✅ NUEVO: clase según longitud del acorde */
+  // clase según longitud
   const len = (chord || "").trim().length;
   const lenClass =
     len >= 8 ? "chord-len-xl" :
@@ -46,12 +44,10 @@ const ChordBlock: React.FC<Props> = ({
     len >= 4 ? "chord-len-md" :
     "chord-len-sm";
 
-  /** autofocus */
   useEffect(() => {
     if (autoFocus) internalRef.current?.focus();
   }, [autoFocus]);
 
-  /** pasar ref hacia arriba */
   useEffect(() => {
     inputRef?.(internalRef.current);
   }, [inputRef]);
@@ -80,7 +76,8 @@ const ChordBlock: React.FC<Props> = ({
     if (e.key === "ArrowRight") {
       const el = e.currentTarget;
       const atEnd =
-        el.selectionStart === el.value.length && el.selectionEnd === el.value.length;
+        el.selectionStart === el.value.length &&
+        el.selectionEnd === el.value.length;
 
       if (atEnd) {
         e.preventDefault();
@@ -89,9 +86,7 @@ const ChordBlock: React.FC<Props> = ({
     }
 
     if (e.key === "Backspace") {
-      if (!e.currentTarget.value.trim()) {
-        onDelete?.();
-      }
+      if (!e.currentTarget.value.trim()) onDelete?.();
     }
 
     if (e.key === "Delete") {
@@ -101,16 +96,12 @@ const ChordBlock: React.FC<Props> = ({
 
   return (
     <div
-      className={`chord-block ${lenClass} relative flex flex-col items-stretch overflow-hidden`}
-      style={{
-        flex: `${slots} 1 0%`,
-        minWidth: 0,
-      }}
+      className={`chord-block ${lenClass}`}
+      style={{ flex: `${slots} 1 0%`, minWidth: 0 }}
     >
-      {/* CHORD INPUT */}
       <input
         ref={internalRef}
-        className="chord-input w-full min-w-0 border rounded px-1 py-0.5 text-center"
+        className="chord-input"
         type="text"
         value={chord}
         onChange={(e) => onChordChange?.(e.target.value)}
@@ -121,56 +112,55 @@ const ChordBlock: React.FC<Props> = ({
         autoCorrect="off"
       />
 
-{/* CONTROLS STACK (solo visible en focus/hover via CSS) */}
-<div className="chord-controls" aria-hidden="true">
-  {showDurationControls && (
-    <input
-      type="number"
-      min={1}
-      max={maxSlots}
-      value={slots}
-      onChange={(e) => {
-        const newSlots = Math.max(1, Math.min(Number(e.target.value), maxSlots));
-        onSlotsChange?.(newSlots);
-      }}
-      className="duration-input border rounded px-1 py-0.5 text-center"
-    />
-  )}
+      <div className="chord-controls">
+        {showDurationControls && (
+          <input
+            type="number"
+            min={1}
+            max={maxSlots}
+            value={slots}
+            onChange={(e) => {
+              const newSlots = Math.max(1, Math.min(Number(e.target.value), maxSlots));
+              onSlotsChange?.(newSlots);
+            }}
+            className="duration-input"
+          />
+        )}
 
-  <div className="chord-controls-row">
-    {onDelete && (
-      <button
-        type="button"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete();
-        }}
-        className="delete-btn"
-        aria-label="Delete chord"
-        title="Delete chord"
-      >
-        ×
-      </button>
-    )}
+        <div className="chord-controls-row">
+          {onDelete && (
+            <button
+              type="button"
+              className="delete-btn"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              aria-label="Delete chord"
+              title="Delete chord"
+            >
+              ×
+            </button>
+          )}
 
-    {onSplit && (
-      <button
-        type="button"
-        className="split-btn"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSplit();
-        }}
-        aria-label="Añadir acorde"
-        title="Añadir acorde"
-      >
-        +
-      </button>
-    )}
-  </div>
-</div>
+          {onSplit && (
+            <button
+              type="button"
+              className="split-btn"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSplit();
+              }}
+              aria-label="Añadir acorde"
+              title="Añadir acorde"
+            >
+              +
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
