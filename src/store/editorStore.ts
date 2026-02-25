@@ -101,6 +101,25 @@ function uid(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
+/** Deep clone seguro para no compartir referencias */
+function cloneBar(bar: Bar): Bar {
+  return {
+    beats: bar.beats,
+    chords: (bar.chords ?? []).map((c) => ({
+      chord: c.chord,
+      slots: c.slots,
+    })),
+  };
+}
+
+function cloneSection(section: Section): Section {
+  return {
+    id: uid("sec"),
+    name: `${section.name} copy`,
+    bars: section.bars.map(cloneBar),
+  };
+}
+
 interface EditorState {
   project: Project;
   currentSectionId: string;
@@ -142,9 +161,15 @@ interface EditorState {
   insertBarAfter: (sectionId: string, barIndex: number) => void;
   moveBar: (sectionId: string, fromIndex: number, toIndex: number) => void;
 
+  /** ✅ NUEVO: duplicar compás */
+  duplicateBar: (sectionId: string, barIndex: number) => void;
+
   // secciones
   addSection: () => void;
   renameSection: (sectionId: string, name: string) => void;
+
+  /** ✅ NUEVO: duplicar sección */
+  duplicateSection: (sectionId: string) => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -356,13 +381,34 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set({ project: { ...project, sections } });
   },
 
+  /** ✅ Duplica el compás y lo inserta justo después */
+  duplicateBar: (sectionId, barIndex) => {
+    const project = get().project;
+
+    const sections = project.sections.map((sec) => {
+      if (sec.id !== sectionId) return sec;
+
+      const bars = [...sec.bars];
+      const target = bars[barIndex];
+      if (!target) return sec;
+
+      bars.splice(barIndex + 1, 0, cloneBar(target));
+      return { ...sec, bars };
+    });
+
+    set({ project: { ...project, sections } });
+  },
+
   addSection: () => {
     const project = get().project;
     const beats = get().beatsPerBar;
 
     const newSectionId = uid("sec");
     const nextName = String.fromCharCode(65 + project.sections.length); // A, B, C...
-    const name = nextName >= "A" && nextName <= "Z" ? nextName : `Section ${project.sections.length + 1}`;
+    const name =
+      nextName >= "A" && nextName <= "Z"
+        ? nextName
+        : `Section ${project.sections.length + 1}`;
 
     const newSection: Section = {
       id: newSectionId,
@@ -386,5 +432,23 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     );
 
     set({ project: { ...project, sections } });
+  },
+
+  /** ✅ Duplica una sección completa (con IDs nuevos) y la inserta justo después */
+  duplicateSection: (sectionId) => {
+    const project = get().project;
+    const idx = project.sections.findIndex((s) => s.id === sectionId);
+    if (idx === -1) return;
+
+    const source = project.sections[idx];
+    const copy = cloneSection(source);
+
+    const sections = [...project.sections];
+    sections.splice(idx + 1, 0, copy);
+
+    set({
+      project: { ...project, sections },
+      currentSectionId: copy.id,
+    });
   },
 }));

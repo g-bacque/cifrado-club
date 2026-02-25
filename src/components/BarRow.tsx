@@ -17,7 +17,7 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
   const addSection = useEditorStore((s) => s.addSection);
   const renameSection = useEditorStore((s) => s.renameSection);
   const setCurrentSectionId = useEditorStore((s) => s.setCurrentSectionId);
-
+  const duplicateSection = useEditorStore((s) => s.duplicateSection);
   const section = project.sections.find((s) => s.id === sectionId);
   if (!section) return null;
 
@@ -78,96 +78,102 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
     setIsEditingName(false);
   };
 
-  return (
-    <div className="barrow-wrapper">
-      {/* ✅ HEADER DE SECCIÓN */}
-      <div className="section-header">
-        <div className="section-left">
+    return (
+      <div className="barrow-wrapper">
+        {/* HEADER */}
+        <div className="section-header">
+          <div className="section-left">
+            {!isEditingName ? (
+              <button
+                type="button"
+                className="section-title"
+                onClick={() => setIsEditingName(true)}
+                title="Renombrar sección"
+              >
+                {section.name}
+              </button>
+            ) : (
+              <input
+                className="section-title-input"
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                onBlur={commitName}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitName();
+                  if (e.key === "Escape") {
+                    setDraftName(section.name);
+                    setIsEditingName(false);
+                  }
+                }}
+                autoFocus
+              />
+            )}
+          </div>
 
-
-
-          {!isEditingName ? (
+          <div className="section-actions">
             <button
               type="button"
-              className="section-title"
-              onClick={() => setIsEditingName(true)}
-              title="Renombrar sección"
+              className="new-section-btn"
+              onClick={() => addSection()}
+              title="Nueva sección"
             >
-              {section.name}
+              + New Section
             </button>
-          ) : (
-            <input
-              className="section-title-input"
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              onBlur={commitName}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") commitName();
-                if (e.key === "Escape") {
-                  setDraftName(section.name);
-                  setIsEditingName(false);
-                }
-              }}
-              autoFocus
-            />
-          )}
 
+            <button
+              type="button"
+              className="duplicate-section-btn"
+              onClick={() => duplicateSection(sectionId)}
+              title="Duplicar sección"
+            >
+              Duplicate Section
+            </button>
+          </div>
         </div>
 
-        <button
-          type="button"
-          className="new-section-btn"
-          onClick={() => addSection()}
-          title="Nueva sección"
-          aria-label="Nueva sección"
-        >
-          + New Section
-        </button>
-      </div>
+        {/* BODY: grid + carril fijo */}
+        <div className="barrow-body">
+          <div className="barrows-systems">
+            {groupedBars.map((rowBars, rowIndex) => (
+              <div key={rowIndex} className="bar-row">
+                <div className="bar-system">
+                  {rowBars.map((_, localIndex) => {
+                    const barIndex = rowIndex * BARS_PER_ROW + localIndex;
+                    const bar = section.bars[barIndex];
+                    const effectiveBeats = bar?.beats ?? beatsPerBar;
 
-      {/* ✅ SISTEMAS / COMPASES */}
-      <div className="mb-2">
-        {groupedBars.map((rowBars, rowIndex) => {
-          const isLastRow = rowIndex === groupedBars.length - 1;
-
-          return (
-            <div key={rowIndex} className="bar-row">
-              <div className="bar-system">
-                {rowBars.map((_, localIndex) => {
-                  const barIndex = rowIndex * BARS_PER_ROW + localIndex;
-                  const bar = section.bars[barIndex];
-                  const effectiveBeats = bar?.beats ?? beatsPerBar;
-
-                  return (
-                    <BarCell
-                      sectionId={sectionId}
-                      key={barIndex}
-                      barIndex={barIndex}
-                      barRefs={barRefs}
-                      createNextBar={createNextBar}
-                      maxSlots={effectiveBeats}
-                    />
-                  );
-                })}
+                    return (
+                      <BarCell
+                        sectionId={sectionId}
+                        key={barIndex}
+                        barIndex={barIndex}
+                        barRefs={barRefs}
+                        createNextBar={createNextBar}
+                        maxSlots={effectiveBeats}
+                      />
+                    );
+                  })}
+                </div>
               </div>
+            ))}
+          </div>
 
-              {isLastRow && (
-                <button
-                  type="button"
-                  className="add-bar-btn"
-                  onClick={createNextBar}
-                  title="Añadir compás"
-                  aria-label="Añadir compás"
-                >
-                  +
-                </button>
-              )}
-            </div>
-          );
-        })}
+          {/* botón fijo: ya NO depende de la última fila */}
+          <div className="barrow-lane">
+            <button
+              type="button"
+              className="add-bar-btn add-bar-btn--sticky"
+              onClick={createNextBar}
+              title="Añadir compás"
+              aria-label="Añadir compás"
+            >
+              +
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+
 };
 
 export default BarRow;

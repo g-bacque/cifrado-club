@@ -10,8 +10,31 @@
   margin-bottom: 14px;
 
   /* ✅ reservamos espacio real para el botón, así no se superpone */
-  padding-right: var(--btn-lane);
+  /*padding-right: var(--btn-lane);*/
   box-sizing: border-box;
+}
+
+.barrow-body {
+  --gap: 10px;
+  --btn-w: 32px;
+  --btn-gap: 10px;
+  --btn-lane: calc(var(--btn-w) + var(--btn-gap));
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.barrows-systems {
+  flex: 1;
+  min-width: 0;
+}
+
+/* carril fijo a la derecha */
+.barrow-lane {
+  width: var(--btn-lane);
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* ✅ SOLO los compases, y centrados dentro del ancho disponible (sin el carril) */
@@ -59,6 +82,12 @@
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(0, 0, 0, 0.42);
   color: rgba(0, 0, 0, 0.85);
+}
+
+/* el botón “no se mueve” aunque aparezcan filas nuevas */
+.add-bar-btn--sticky {
+  position: sticky;
+  top: 140px; /* ajusta según tu topbar/espaciado */
 }
 
 .bar-cell.drop-target {
@@ -198,4 +227,39 @@
 
 .mode-print .section-title {
   cursor: default;
+}
+
+.section-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.duplicate-section-btn {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.15);
+
+  transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.duplicate-section-btn:hover {
+  border-color: rgba(0, 0, 0, 0.20);
+  background: rgba(244, 211, 82, 0.95);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.mode-print .duplicate-section-btn {
+  display: none !important;
 }

@@ -77,8 +77,8 @@
    visibles en hover/focus, y siempre visibles mientras arrastras
 ========================================================= */
 
-.drag-handle,
-.insert-bar-btn {
+.drag-handle
+ {
   position: absolute;
   top: -12px;
   z-index: 12;
@@ -97,7 +97,7 @@
   font-weight: 800;
   line-height: 1;
 
-  color: rgba(0, 0, 0, 0.65);
+  color: rgba(0, 0, 0, 0.30);
 
   opacity: 0;
   pointer-events: none;
@@ -140,7 +140,7 @@ body.dragging-bars .drag-handle {
 /* hover look */
 .drag-handle:hover,
 .insert-bar-btn:hover {
-  background: rgba(255, 255, 255, 1);
+  background: rgb(234, 165, 223);
   border-color: rgba(0, 0, 0, 0.45);
   color: rgba(0, 0, 0, 0.9);
 }
@@ -159,7 +159,7 @@ body.dragging-bars .drag-handle {
   font-weight: 700;
   letter-spacing: 0.3px;
 
-  color: rgba(0, 0, 0, 0.62);
+  color: rgba(0, 0, 0, 0.65);
 
   pointer-events: none;
   user-select: none;
@@ -254,7 +254,7 @@ body.dragging-bars .drag-handle {
   padding: 2px 6px;
   font-size: 11px;
   font-weight: 900;
-  color: rgba(0,0,0,0.62);
+  color: rgba(0,0,0,0.30);
 
   cursor: pointer;
 }
@@ -352,4 +352,65 @@ body.dragging-bars .drag-handle {
 /* hover: mostrar todo */
 .bar-cell:hover .bar-timesig-controls .ts-btn {
   display: inline-flex;
+}
+
+/* Contenedor de acciones en el borde derecho del compás */
+.bar-edge-actions {
+  position: absolute;
+  top: -12px;       /* mismo nivel que el + actual */
+  right: -11px;     /* centrado sobre la línea vertical derecha */
+  z-index: 12;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;         /* separación entre + y ⧉ */
+}
+
+/* Ambos botones con el mismo look que ya tienes */
+.bar-edge-actions .insert-bar-btn,
+.bar-edge-actions .duplicate-bar-btn {
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.95);
+  color: rgba(0, 0, 0, 0.30);
+
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease, border-color 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+/* Visible en hover/focus igual que antes */
+.bar-cell:hover .bar-edge-actions .insert-bar-btn,
+.bar-cell:hover .bar-edge-actions .duplicate-bar-btn,
+.bar-cell:focus-within .bar-edge-actions .insert-bar-btn,
+.bar-cell:focus-within .bar-edge-actions .duplicate-bar-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Hover look */
+
+.bar-edge-actions .duplicate-bar-btn:hover {
+  background: rgb(228, 194, 100);
+  border-color: rgba(0, 0, 0, 0.45);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.bar-edge-actions .insert-bar-btn:hover {
+  background: rgb(157, 211, 157);
+  border-color: rgba(0, 0, 0, 0.45);
+  color: rgba(0, 0, 0, 0.9);
 }

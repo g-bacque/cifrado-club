@@ -21,8 +21,10 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
     const updateChord = useEditorStore((s) => s.updateChord);
     const deleteLastBar = useEditorStore((s) => s.deleteLastBar);
     const insertBarAfter = useEditorStore((s) => s.insertBarAfter);
+    const duplicateBar = useEditorStore((s) => s.duplicateBar);
     const moveBar = useEditorStore((s) => s.moveBar);
     const ensureNextBar = useEditorStore((s) => s.ensureNextBar);
+    
 
     // time sig per-bar
     const beatsPerBar = useEditorStore((s) => s.beatsPerBar);
@@ -275,19 +277,35 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
         {!showTimeSig && <span className="bar-number hover-only">{barIndex + 1}</span>}
 
         {/* Insert bar button */}
-        <button
-          type="button"
-          className="insert-bar-btn"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleInsertBarAfter();
-          }}
-          aria-label="Insertar compás"
-          title="Insertar compás"
-        >
-          ↔
-        </button>
+        <div className="bar-edge-actions" aria-label="Acciones de compás">
+          <button
+            type="button"
+            className="insert-bar-btn"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleInsertBarAfter();
+            }}
+            aria-label="Insertar compás"
+            title="Insertar compás"
+          >
+            +
+          </button>
+
+          <button
+            type="button"
+            className="duplicate-bar-btn"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.stopPropagation();
+              duplicateBar(sectionId, barIndex);
+            }}
+            aria-label="Duplicar compás"
+            title="Duplicar compás"
+          >
+            ⧉
+          </button>
+        </div>
 
         {/* Chords */}
         {chords.map((chordObj, idx) => (
