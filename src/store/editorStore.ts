@@ -1,6 +1,33 @@
 // src/store/editorStore.ts
 import { create } from "zustand";
+export interface SavedProject {
+  id: string;          // id del guardado (slot)
+  title: string;
+  updatedAt: number;
+  data: {
+    project: Project;
+    beatsPerBar: number;
+    currentSectionId: string;
+    showDurationControls: boolean;
+  };
+}
 
+const STORAGE_KEY = "cifrado_projects_v1";
+
+function loadAllSaved(): SavedProject[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAllSaved(items: SavedProject[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
 /** Cada acorde ocupa un número de slots dentro del compás */
 export interface ChordEvent {
   chord: string;
@@ -132,6 +159,22 @@ interface EditorState {
 
   /** Compás global por defecto (3 = 3/4, 4 = 4/4, etc.) */
   beatsPerBar: number;
+    // persistencia local
+  activeSaveId: string | null;
+  savedProjects: SavedProject[];
+
+  refreshSavedProjects: () => void;
+
+  saveProject: () => void;                 // guarda sobre activeSaveId, o crea si null
+  saveProjectAs: (title?: string) => void; // siempre crea un nuevo slot
+  loadProject: (saveId: string) => void;
+  deleteSavedProject: (saveId: string) => void;
+
+  newProject: () => void;
+
+  lastSavedSnapshot: string | null;
+isDirty: () => boolean;
+markSaved: () => void;
 
   // setters básicos
   setProject: (project: Project) => void;
@@ -172,8 +215,9 @@ interface EditorState {
   duplicateSection: (sectionId: string) => void;
 }
 
-export const useEditorStore = create<EditorState>((set, get) => ({
+export const useEditorStore = create<EditorState>((set, get ) => ({
   beatsPerBar: 4,
+  lastSavedSnapshot: null,
 
   project: {
     id: "1",
@@ -192,6 +236,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   currentSectionId: "sec1",
 
   showDurationControls: true,
+
+  activeSaveId: null,
+  savedProjects: loadAllSaved(),
 
   setProject: (project) => set({ project }),
 
@@ -451,4 +498,155 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       currentSectionId: copy.id,
     });
   },
+
+     refreshSavedProjects: () => {
+    set({ savedProjects: loadAllSaved() });
+  },
+
+  saveProject: () => {
+    const { project, beatsPerBar, currentSectionId, showDurationControls, activeSaveId } = get();
+
+    const now = Date.now();
+    const all = loadAllSaved();
+
+    // si no hay slot activo, crea uno nuevo
+    const saveId = activeSaveId ?? uid("save");
+
+    const payload: SavedProject = {
+      id: saveId,
+      title: project.title || "Untitled Song",
+      updatedAt: now,
+      data: {
+        project,
+        beatsPerBar,
+        currentSectionId,
+        showDurationControls,
+      },
+    };
+
+    const idx = all.findIndex((p) => p.id === saveId);
+    if (idx >= 0) all[idx] = payload;
+    else all.unshift(payload);
+
+    saveAllSaved(all);
+
+    set({
+      activeSaveId: saveId,
+      savedProjects: all,
+    });
+    get().markSaved();
+  },
+
+  saveProjectAs: (title) => {
+    const { project, beatsPerBar, currentSectionId, showDurationControls } = get();
+
+    const now = Date.now();
+    const all = loadAllSaved();
+
+    const saveId = uid("save");
+    const payload: SavedProject = {
+      id: saveId,
+      title: (title?.trim() || project.title || "Untitled Song"),
+      updatedAt: now,
+      data: {
+        project: { ...project, title: (title?.trim() || project.title) },
+        beatsPerBar,
+        currentSectionId,
+        showDurationControls,
+      },
+    };
+
+    all.unshift(payload);
+    saveAllSaved(all);
+
+    set({
+      activeSaveId: saveId,
+      project: payload.data.project,
+      beatsPerBar: payload.data.beatsPerBar,
+      currentSectionId: payload.data.currentSectionId,
+      showDurationControls: payload.data.showDurationControls,
+      savedProjects: all,
+    });
+    get().markSaved();
+  },
+
+  loadProject: (saveId) => {
+    const all = loadAllSaved();
+    const found = all.find((p) => p.id === saveId);
+    if (!found) return;
+
+    set({
+      activeSaveId: found.id,
+      project: found.data.project,
+      beatsPerBar: found.data.beatsPerBar,
+      currentSectionId: found.data.currentSectionId,
+      showDurationControls: found.data.showDurationControls,
+      savedProjects: all,
+    });
+    get().markSaved();
+  },
+
+  deleteSavedProject: (saveId) => {
+    const { activeSaveId } = get();
+    const all = loadAllSaved().filter((p) => p.id !== saveId);
+    saveAllSaved(all);
+
+    set({
+      savedProjects: all,
+      activeSaveId: activeSaveId === saveId ? null : activeSaveId,
+    });
+  },
+
+  newProject: () => {
+    const beats = get().beatsPerBar;
+
+    const newSecId = uid("sec");
+    const fresh: Project = {
+      id: uid("proj"),
+      title: "Untitled Song",
+      key: "C Major",
+      tempo: 120,
+      sections: [
+        {
+          id: newSecId,
+          name: "A",
+          bars: [{ chords: [{ chord: "", slots: beats }] }],
+        },
+      ],
+    };
+
+    set({
+      activeSaveId: null,
+      project: fresh,
+      currentSectionId: newSecId,
+      showDurationControls: true,
+    });
+    get().markSaved();
+  },
+  isDirty: () => {
+  const { project, beatsPerBar, currentSectionId, showDurationControls, lastSavedSnapshot } = get();
+
+  const current = JSON.stringify({
+    project,
+    beatsPerBar,
+    currentSectionId,
+    showDurationControls,
+  });
+
+  return lastSavedSnapshot !== current;
+},
+
+markSaved: () => {
+  const { project, beatsPerBar, currentSectionId, showDurationControls } = get();
+
+  const snapshot = JSON.stringify({
+    project,
+    beatsPerBar,
+    currentSectionId,
+    showDurationControls,
+  });
+
+  set({ lastSavedSnapshot: snapshot });
+},
 }));
+
