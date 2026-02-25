@@ -3,6 +3,7 @@ import TopBar from "../components/TopBar";
 import ChordGrid from "../components/ChordGrid";
 import { useEditorStore } from "../store/editorStore";
 import "./EditorPage.css";
+import ProjectMenu from "../components/ProjectMenu";
 
 const EditorPage: React.FC = () => {
   const project = useEditorStore((state) => state.project);
@@ -10,6 +11,7 @@ const EditorPage: React.FC = () => {
 
   return (
     <div className="editor-page">
+      <ProjectMenu />
       <div className={`editor-shell ${showDurationControls ? "mode-edit" : "mode-print"}`}>
         <TopBar tempo={project.tempo} />
 

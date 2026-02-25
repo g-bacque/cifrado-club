@@ -1,5 +1,6 @@
 // src/store/editorStore.ts
 import { create } from "zustand";
+
 export interface SavedProject {
   id: string;          // id del guardado (slot)
   title: string;
@@ -201,6 +202,7 @@ markSaved: () => void;
   addEmptyBarAtEnd: (sectionId: string) => void;
   ensureNextBar: (sectionId: string, barIndex: number) => void;
   deleteLastBar: (sectionId: string) => void;
+  deleteBarAt: (sectionId: string, barIndex: number) => void;
   insertBarAfter: (sectionId: string, barIndex: number) => void;
   moveBar: (sectionId: string, fromIndex: number, toIndex: number) => void;
 
@@ -375,6 +377,26 @@ export const useEditorStore = create<EditorState>((set, get ) => ({
 
     set({ project: { ...project, sections } });
   },
+  deleteBarAt: (sectionId, barIndex) => {
+  const project = get().project;
+
+  const sections = project.sections.map((sec) => {
+    if (sec.id !== sectionId) return sec;
+
+    // no borrar si solo hay 1 compás
+    if (sec.bars.length <= 1) return sec;
+
+    // clamp defensivo
+    if (barIndex < 0 || barIndex >= sec.bars.length) return sec;
+
+    const bars = [...sec.bars];
+    bars.splice(barIndex, 1);
+
+    return { ...sec, bars };
+  });
+
+  set({ project: { ...project, sections } });
+},
 
   /**
    * Inserta un compás “vacío” justo después de barIndex.

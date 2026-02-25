@@ -20,6 +20,7 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
 
     const updateChord = useEditorStore((s) => s.updateChord);
     const deleteLastBar = useEditorStore((s) => s.deleteLastBar);
+    const deleteBarAt = useEditorStore((s) => s.deleteBarAt);
     const insertBarAfter = useEditorStore((s) => s.insertBarAfter);
     const duplicateBar = useEditorStore((s) => s.duplicateBar);
     const moveBar = useEditorStore((s) => s.moveBar);
@@ -191,6 +192,25 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
     return (
       <div
         className={`bar-cell chords-${chords.length}`}
+        tabIndex={-1}
+        onMouseEnter={(e) => {
+  // Solo si YA hay un compás enfocado en algún lado
+  const hasFocusedBar = Boolean(document.querySelector(".bar-cell:focus-within"));
+  if (!hasFocusedBar) return;
+
+  // Si este compás ya está en focus, no hagas nada
+  if (e.currentTarget.querySelector(":focus")) return;
+
+  // Mover el foco al compás que estás hovereando
+  e.currentTarget.focus();
+}}onMouseDown={(e) => {
+  // Evita que el foco se quede “raro” si clicas en zonas vacías
+  // (no afecta al input porque el input seguirá enfocándose al click)
+  if (e.target === e.currentTarget) e.preventDefault();
+}}
+onClick={(e) => {
+  if (e.target === e.currentTarget) e.currentTarget.focus();
+}}
         style={{ minWidth: 0 }}
         ref={(el) => {
           barRefs.current[barIndex] = el!;
@@ -432,33 +452,54 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
               normalizeSlots();
               setProject({ ...project });
             }}
-            onDelete={() => {
-              // if only chord: delete last bar if allowed
-              if (chords.length === 1) {
-                const isLastBar = barIndex === section.bars.length - 1;
-                const canDeleteBar = isLastBar && section.bars.length > 1;
+          onDelete={() => {
+            const value = (chords[idx]?.chord ?? "").trim();
 
-                if (canDeleteBar) {
-                  deleteLastBar(sectionId);
-                  setTimeout(() => {
-                    const newLastBarIndex = barIndex - 1;
-                    focusChord(newLastBarIndex, 0);
-                  }, 0);
-                  return;
-                }
+            // 1) Si tiene texto -> solo borrar texto
+            if (value.length > 0) {
+              updateChord(sectionId, barIndex, idx, "");
+              return;
+            }
 
-                updateChord(sectionId, barIndex, 0, "");
-                return;
-              }
+            // 2) Si está vacío:
 
+            // 2a) Si hay más de un acorde -> borrar el acorde
+            if (chords.length > 1) {
               const removed = chords.splice(idx, 1)[0];
               chords[chords.length - 1].slots += removed.slots;
 
               normalizeSlots();
               setProject({ ...project });
 
-              setTimeout(() => move(Math.min(idx, chords.length - 1), "prev"), 0);
-            }}
+              // foco al acorde anterior (o al nuevo idx si existe)
+              setTimeout(() => {
+                const nextIdx = Math.min(idx, chords.length - 1);
+                focusChord(barIndex, nextIdx);
+              }, 0);
+
+              return;
+            }
+
+            // 2b) Si es el único acorde del compás -> borrar el compás entero
+            // excepto si la sección solo tiene 1 compás
+            if (section.bars.length <= 1) {
+              // no se puede borrar el único compás, ya está vacío, no hacemos nada
+              return;
+            }
+
+            deleteBarAt(sectionId, barIndex);
+
+            // foco: intenta quedarse cerca (mismo índice si existe, o anterior)
+            setTimeout(() => {
+              const latestProject = useEditorStore.getState().project;
+              const latestSection = latestProject.sections.find((s) => s.id === sectionId);
+              if (!latestSection) return;
+
+              const nextBarIndex = Math.min(barIndex, latestSection.bars.length - 1);
+              const el = barRefs.current[nextBarIndex];
+              el?.querySelector<HTMLInputElement>("input.chord-input")?.focus();
+            }, 0);
+          }}
           />
         ))}
       </div>
