@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/cifrado-club/sw.js', { scope: '/cifrado-club/' })})}
