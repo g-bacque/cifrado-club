@@ -216,3 +216,99 @@
   gap: 10px;
   min-width: 0;
 }
+
+/* ============================
+   RESPONSIVE
+============================ */
+
+@media (max-width: 900px) {
+  .topbar {
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .topbar-title {
+    font-size: 22px;
+    min-width: 180px;
+  }
+
+  .topbar-controls {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin: 14px auto 10px auto;
+  }
+
+  .topbar-left {
+    width: 100%;
+  }
+
+  .topbar-title {
+    width: 100%;
+    min-width: 0;
+    font-size: 22px;
+  }
+
+  .topbar-controls {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .topbar-time {
+    flex-wrap: wrap;
+  }
+
+  .topbar-tempo-input {
+    width: 64px;
+  }
+
+  .duration-btn {
+    min-height: 40px;
+  }
+
+  .time-btn {
+    min-height: 38px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .topbar-title {
+    font-size: 20px;
+  }
+
+  .topbar-controls {
+    gap: 8px;
+  }
+
+  .topbar-tempo-wrap {
+    gap: 6px;
+  }
+
+  .topbar-tempo-input {
+    width: 58px;
+    padding: 6px;
+  }
+
+  .time-btn,
+  .duration-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+}

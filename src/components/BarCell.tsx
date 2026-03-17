@@ -2,6 +2,7 @@ import React, { useRef, forwardRef } from "react";
 import ChordBlock from "./ChordBlock";
 import "./BarCell.css";
 import { useEditorStore } from "../store/editorStore";
+import { usePlaybackPosition } from "../hooks/usePlaybackPosition";
 
 export interface BarCellProps {
   sectionId: string;
@@ -38,6 +39,9 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
     if (!bar) return null;
 
     const chords = bar.chords;
+    
+
+    const playbackPos = usePlaybackPosition();
 
     // ===== time signature logic =====
     const beatsHere = bar.beats ?? beatsPerBar;
@@ -87,6 +91,11 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
       );
       chordInputs[targetChordIndex]?.focus();
     };
+
+    const isActiveBar =
+    !!playbackPos &&
+    playbackPos.sectionId === sectionId &&
+    playbackPos.barIndex === barIndex;
 
     const move = (fromChordIndex: number, direction: "prev" | "next") => {
       if (direction === "prev") {
@@ -191,7 +200,7 @@ const BarCell = forwardRef<HTMLDivElement, BarCellProps>(
 
     return (
       <div
-        className={`bar-cell chords-${chords.length}`}
+        className={`bar-cell chords-${chords.length} ${isActiveBar ? "bar-active" : ""}`}
         tabIndex={-1}
         onMouseEnter={(e) => {
   // Solo si YA hay un compás enfocado en algún lado

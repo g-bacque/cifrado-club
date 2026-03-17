@@ -1,5 +1,5 @@
 .bar-row {
-  --bars-per-row: 4;
+
   --gap: 10px;
 
   --btn-w: 32px;
@@ -39,8 +39,9 @@
 
 /* ✅ SOLO los compases, y centrados dentro del ancho disponible (sin el carril) */
 .bar-system {
-  width: calc(100% - var(--btn-lane));
-  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
   box-sizing: border-box;
 
   display: flex;
@@ -48,7 +49,7 @@
   flex-wrap: nowrap;
   gap: var(--gap);
 
-  justify-content: flex-start; /* ✅ ancla al inicio */
+  justify-content: flex-start;
   align-items: stretch;
 }
 
@@ -89,7 +90,10 @@
   position: sticky;
   top: 140px; /* ajusta según tu topbar/espaciado */
 }
-
+.bar-cell {
+  min-width: 220px;
+  flex: 1 1 220px;
+}
 .bar-cell.drop-target {
   background: rgba(0, 0, 0, 0.04);
 }
@@ -262,4 +266,148 @@
 
 .mode-print .duplicate-section-btn {
   display: none !important;
+}
+
+.delete-section-btn {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.15);
+
+  transition: background 140ms ease, color 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.delete-section-btn:hover {
+  border-color: rgba(0, 0, 0, 0.20);
+  background: rgba(218, 119, 140, 0.95);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mode-print .delete-section-btn {
+  display: none !important;
+}
+
+/* ============================
+   RESPONSIVE
+============================ */
+
+@media (max-width: 900px) {
+  .section-header {
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .section-title,
+  .section-title-input {
+    font-size: 22px;
+  }
+
+  .section-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .new-section-btn,
+  .duplicate-section-btn,
+  .delete-section-btn {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin: 0 0 18px 0;
+  }
+
+  .section-left {
+    width: 100%;
+  }
+
+  .section-title,
+  .section-title-input {
+    font-size: 20px;
+  }
+
+  .section-title-input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section-actions {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .new-section-btn,
+  .duplicate-section-btn,
+  .delete-section-btn {
+    min-height: 40px;
+  }
+
+  .barrow-body {
+    align-items: stretch;
+  }
+
+  .barrows-systems {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+
+  .barrow-lane {
+    width: auto;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .add-bar-btn--sticky {
+    top: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title,
+  .section-title-input {
+    font-size: 18px;
+  }
+
+  .section-actions {
+    gap: 6px;
+  }
+
+  .new-section-btn,
+  .duplicate-section-btn,
+  .delete-section-btn {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+
+  .bar-row {
+    margin-bottom: 10px;
+  }
+
+  .barrow-body {
+    --gap: 8px;
+  }
 }

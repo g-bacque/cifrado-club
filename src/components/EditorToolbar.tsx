@@ -1,3 +1,4 @@
+import React from "react";
 import { useEditorStore } from "../store/editorStore";
 
 export default function EditorToolbar() {

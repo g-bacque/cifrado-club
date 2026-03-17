@@ -2,13 +2,12 @@ import React from "react";
 import { useEditorStore } from "../store/editorStore";
 import "./TopBar.css";
 
-interface Props {
-  tempo: number;
-}
-
-const TopBar: React.FC<Props> = ({ tempo }) => {
+const TopBar: React.FC = () => {
   const title = useEditorStore((s) => s.project.title);
+  const tempo = useEditorStore((s) => s.project.tempo);
+
   const setProjectTitle = useEditorStore((s) => s.setProjectTitle);
+  const setTempo = useEditorStore((s) => s.setTempo);
 
   const beatsPerBar = useEditorStore((s) => s.beatsPerBar);
   const setBeatsPerBar = useEditorStore((s) => s.setBeatsPerBar);
@@ -16,7 +15,6 @@ const TopBar: React.FC<Props> = ({ tempo }) => {
   const showDurationControls = useEditorStore((s) => s.showDurationControls);
   const toggleDurationControls = useEditorStore((s) => s.toggleDurationControls);
 
-  // ✅ solo esto para el puntito
   const isDirty = useEditorStore((s) => s.isDirty());
 
   return (
@@ -29,11 +27,22 @@ const TopBar: React.FC<Props> = ({ tempo }) => {
           className="topbar-title"
           placeholder="Título de la canción"
         />
-
       </div>
 
       <div className="topbar-controls">
-        <span className="topbar-tempo">{tempo} BPM</span>
+        <div className="topbar-tempo-wrap">
+          <span className="label">BPM:</span>
+          <input
+            type="number"
+            min={30}
+            max={300}
+            step={1}
+            value={tempo}
+            onChange={(e) => setTempo(Number(e.target.value))}
+            className="topbar-tempo-input"
+            title="Tempo"
+          />
+        </div>
 
         <div className="topbar-time">
           <span className="label">Compás:</span>
@@ -59,6 +68,11 @@ const TopBar: React.FC<Props> = ({ tempo }) => {
         >
           Modo: {showDurationControls ? "Editar" : "Print"}
         </button>
+
+        <span
+          className={`topbar-dirty-dot ${isDirty ? "is-dirty" : ""}`}
+          title={isDirty ? "Hay cambios sin guardar" : "Todo guardado"}
+        />
       </div>
     </div>
   );

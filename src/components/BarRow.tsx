@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import BarCell from "./BarCell";
 import { useEditorStore } from "../store/editorStore";
+import { useBarsPerRow } from "../hooks/useBarsPerRow.ts";
 import "./BarRow.css";
+
 
 interface BarRowProps {
   sectionId: string;
@@ -12,17 +14,19 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
 
   const addEmptyBarAtEnd = useEditorStore((s) => s.addEmptyBarAtEnd);
   const beatsPerBar = useEditorStore((s) => s.beatsPerBar);
+  
 
   // ✅ Secciones: crear/renombrar/navegar
   const addSection = useEditorStore((s) => s.addSection);
   const renameSection = useEditorStore((s) => s.renameSection);
   const setCurrentSectionId = useEditorStore((s) => s.setCurrentSectionId);
   const duplicateSection = useEditorStore((s) => s.duplicateSection);
+  const deleteSection = useEditorStore((s) => s.deleteSection);
   const section = project.sections.find((s) => s.id === sectionId);
   if (!section) return null;
 
   const barRefs = useRef<HTMLDivElement[]>([]);
-  const BARS_PER_ROW = 4;
+  const BARS_PER_ROW = useBarsPerRow();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [draftName, setDraftName] = useState(section.name);
@@ -79,7 +83,10 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
   };
 
     return (
-      <div className="barrow-wrapper">
+        <div
+          className="barrow-wrapper"
+          style={{ ["--bars-per-row" as string]: String(BARS_PER_ROW) }}
+        >
         {/* HEADER */}
         <div className="section-header">
           <div className="section-left">
@@ -128,6 +135,24 @@ const BarRow: React.FC<BarRowProps> = ({ sectionId }) => {
             >
               Duplicate Section
             </button>
+
+            <button
+              type="button"
+              className="delete-section-btn"
+              onClick={() => {
+                if (project.sections.length <= 1) return;
+
+                const confirmed = window.confirm(`Delete section "${section.name}"?`);
+                if (!confirmed) return;
+
+                deleteSection(sectionId);
+              }}
+              title="Eliminar sección"
+              disabled={project.sections.length <= 1}
+            >
+            Delete Section
+            </button>
+          
           </div>
         </div>
 

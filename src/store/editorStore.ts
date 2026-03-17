@@ -174,13 +174,14 @@ interface EditorState {
   newProject: () => void;
 
   lastSavedSnapshot: string | null;
-isDirty: () => boolean;
-markSaved: () => void;
+  isDirty: () => boolean;
+  markSaved: () => void;
 
   // setters básicos
   setProject: (project: Project) => void;
   setCurrentSectionId: (id: string) => void;
   setProjectTitle: (title: string) => void;
+  setTempo: (tempo: number) => void;
 
   toggleDurationControls: () => void;
 
@@ -212,7 +213,7 @@ markSaved: () => void;
   // secciones
   addSection: () => void;
   renameSection: (sectionId: string, name: string) => void;
-
+  deleteSection: (sectionId: string) => void;
   /** ✅ NUEVO: duplicar sección */
   duplicateSection: (sectionId: string) => void;
 }
@@ -249,6 +250,18 @@ export const useEditorStore = create<EditorState>((set, get ) => ({
   setProjectTitle: (title) => {
     const project = get().project;
     set({ project: { ...project, title } });
+  },
+
+  setTempo: (tempo) => {
+    const project = get().project;
+    const safeTempo = Math.max(30, Math.min(300, Math.round(tempo) || 120));
+  
+    set({
+      project: {
+        ...project,
+        tempo: safeTempo,
+      },
+    });
   },
 
   toggleDurationControls: () =>
@@ -501,6 +514,33 @@ export const useEditorStore = create<EditorState>((set, get ) => ({
     );
 
     set({ project: { ...project, sections } });
+  },
+
+  deleteSection: (sectionId) => {
+    const project = get().project;
+    const { currentSectionId } = get();
+
+    // no borrar si solo queda 1 sección
+    if (project.sections.length <= 1) return;
+
+    const idx = project.sections.findIndex((s) => s.id === sectionId);
+    if (idx === -1) return;
+
+    const sections = project.sections.filter((s) => s.id !== sectionId);
+
+    let nextCurrentSectionId = currentSectionId;
+
+    // si se borra la sección activa, seleccionar vecina
+    if (currentSectionId === sectionId) {
+      const previous = project.sections[idx - 1];
+      const next = project.sections[idx + 1];
+      nextCurrentSectionId = previous?.id ?? next?.id ?? sections[0]?.id ?? "";
+    }
+
+    set({
+      project: { ...project, sections },
+      currentSectionId: nextCurrentSectionId,
+    });
   },
 
   /** ✅ Duplica una sección completa (con IDs nuevos) y la inserta justo después */

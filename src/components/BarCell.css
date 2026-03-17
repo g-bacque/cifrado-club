@@ -16,6 +16,13 @@
   );
 
   min-width: 0;
+  flex: 0 0 calc(
+    (100% - ((var(--bars-per-row) - 1) * var(--gap))) / var(--bars-per-row)
+  );
+  max-width: calc(
+    (100% - ((var(--bars-per-row) - 1) * var(--gap))) / var(--bars-per-row)
+  );
+  box-sizing: border-box;
   box-sizing: border-box;
 
   background: transparent;
@@ -26,7 +33,11 @@
   /* líneas verticales tipo Real Book */
   border-right: 2px solid rgba(0, 0, 0, 0.80);
 }
-
+.bar-active {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  background: rgba(37, 99, 235, 0.08);
+}
 /* cada chord ocupa toda la altura del compás */
 .bar-cell .chord-block {
   height: 100%;
@@ -413,4 +424,25 @@ body.dragging-bars .drag-handle {
   background: rgb(157, 211, 157);
   border-color: rgba(0, 0, 0, 0.45);
   color: rgba(0, 0, 0, 0.9);
+}
+
+@media (max-width: 900px) {
+  .bar-cell {
+    min-width: 210px;
+    flex: 1 1 210px;
+  }
+}
+
+@media (max-width: 640px) {
+  .bar-cell {
+    min-width: 280px;
+    flex: 0 0 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bar-cell {
+    min-width: 260px;
+    flex: 0 0 260px;
+  }
 }

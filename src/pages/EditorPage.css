@@ -67,6 +67,41 @@
   }
 }
 
+.topbar-tempo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-tempo-input {
+  width: 72px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.35);
+  color: rgba(0, 0, 0, 0.78);
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+}
+
+.topbar-tempo-input:focus {
+  border-color: rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.topbar-dirty-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  display: inline-block;
+}
+
+.topbar-dirty-dot.is-dirty {
+  background: #d97706;
+}
+
 /* ============================
    PRINT MODE (Sheet)
 ============================ */
@@ -90,4 +125,60 @@
 }
 .mode-print .chord-block:focus-within .chord-input {
   transform: none !important;
+}
+
+.mode-print .topbar-tempo-wrap {
+  gap: 6px;
+}
+
+.mode-print .topbar-tempo-input {
+  width: 56px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
+/* ============================
+   RESPONSIVE LAYOUT
+============================ */
+
+@media (max-width: 900px) {
+  .editor-page {
+    padding: 20px 14px;
+  }
+
+  .editor-shell {
+    max-width: 100%;
+  }
+
+  .editor-main {
+    padding: 36px 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .editor-page {
+    padding: 14px 10px;
+  }
+
+  .editor-main {
+    padding: 22px 14px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-page {
+    padding: 10px 8px;
+  }
+
+  .editor-main {
+    padding: 18px 10px;
+    border-radius: 6px;
+  }
 }
